@@ -122,7 +122,10 @@
     
     // 複利計算邏輯 (8% 年化)
     const r = 0.08 / 12;
-    const calcFV = (y) => monthlyTotal * ((Math.pow(1 + r, y * 12) - 1) / r) * (1 + r);
+    const calcFV = (y) => {
+        if (monthlyTotal === 0) return 0;
+        return monthlyTotal * ((Math.pow(1 + r, y * 12) - 1) / r) * (1 + r);
+    };
     
     document.getElementById('totalIn').innerText = "$" + (monthlyTotal * 12 * 35).toLocaleString();
     document.getElementById('f10').innerText = "$" + Math.round(calcFV(10)).toLocaleString();
