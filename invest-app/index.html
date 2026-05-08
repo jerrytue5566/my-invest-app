@@ -22,22 +22,22 @@
     .price-val { font-size: 17px; font-weight: bold; margin: 2px 0; }
     .change { font-size: 11px; font-weight: bold; }
     
-    /* 決策護欄強化 */
-    .strategy-box { background: #111827; border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
-    .ind { text-align: center; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
-    .ind h2 { font-size: 10px; color: var(--sub); text-transform: uppercase; letter-spacing: 1px; }
-    .ind div { font-size: 24px; font-weight: 800; }
-
-    /* 成本追蹤區 */
+    /* 損益顯示區 */
     .tracking-card { background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 24px; padding: 20px; margin-bottom: 15px; border: 1px solid #334155; }
-    .track-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-    .track-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; text-align: center; }
-    .track-label { font-size: 10px; color: var(--sub); margin-bottom: 4px; }
-    .track-val { font-size: 15px; font-weight: bold; }
+    .profit-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 15px; }
+    .p-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 14px; text-align: center; }
+    .p-label { font-size: 10px; color: var(--sub); margin-bottom: 4px; }
+    .p-val { font-size: 13px; font-weight: bold; }
+    .total-main { text-align: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+
+    /* 設定區塊分開 */
+    .config-section { background: var(--card); border-radius: 24px; padding: 20px; margin-bottom: 15px; }
+    .user-config-group { margin-bottom: 15px; padding: 15px; border-radius: 16px; background: rgba(0,0,0,0.2); }
+    .zy-border { border: 1px solid var(--zy-color); }
+    .jr-border { border: 1px solid var(--jr-color); }
+    .input-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    input { background: #0f172a; border: 1px solid #334155; color: white; padding: 6px; border-radius: 8px; width: 90px; text-align: right; font-size: 14px; }
     
-    input { background: #0f172a; border: 1px solid #334155; color: white; padding: 6px 10px; border-radius: 10px; width: 100px; text-align: right; }
-    .vision-card { background: var(--card); border-radius: 24px; padding: 20px; border: 1px solid var(--success); }
     .profit { color: var(--success); } .loss { color: var(--danger); }
   </style>
 </head>
@@ -45,129 +45,13 @@
 
 <div class="container">
   <div class="market-strip">
-    <div class="price-card"><h4>VOO</h4><div id="vooP" class="price-val">載入中</div><div id="vooC" class="change">--</div></div>
-    <div class="price-card"><h4>QQQ</h4><div id="qqqP" class="price-val">載入中</div><div id="qqqC" class="change">--</div></div>
-    <div class="price-card"><h4>SSO</h4><div id="ssoP" class="price-val">載入中</div><div id="ssoC" class="change">--</div></div>
-  </div>
-
-  <div class="strategy-box">
-    <div class="grid">
-      <div class="ind"><h2>CAPE Ratio</h2><div id="capeVal" class="profit">--</div></div>
-      <div class="ind"><h2>VIX Index</h2><div id="vixVal">--</div></div>
-    </div>
-    <div id="actMsg" style="color:var(--accent); font-weight:bold; text-align:center; font-size: 14px;">同步實時市場指標中...</div>
+    <div class="price-card"><h4>VOO</h4><div id="vooP" class="price-val">--</div><div id="vooC" class="change">--</div></div>
+    <div class="price-card"><h4>QQQ</h4><div id="qqqP" class="price-val">--</div><div id="qqqC" class="change">--</div></div>
+    <div class="price-card"><h4>SSO</h4><div id="ssoP" class="price-val">--</div><div id="ssoC" class="change">--</div></div>
   </div>
 
   <div class="tracking-card">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-weight:bold; color:var(--accent)">📊 成本追蹤 (TWD)</span>
-        <span style="font-size:10px; color:var(--sub)">每月 7 號紀律投入</span>
-    </div>
-    <div id="totalProfitTWD" style="font-size:28px; font-weight:800; margin:10px 0;">NT$ 0</div>
-    <div class="track-grid">
-        <div class="track-item"><div class="track-label">總市值</div><div id="marketVal" class="track-val">--</div></div>
-        <div class="track-item"><div class="track-label">報酬率</div><div id="roiPct" class="track-val">--</div></div>
-    </div>
-  </div>
-
-  <div class="tracking-card" style="background: var(--card);">
-    <div class="track-grid" style="grid-template-columns: 1fr;">
-      <div class="input-row" style="display:flex; justify-content:space-between; align-items:center;">
-        <label style="font-size:13px">VOO 總股數</label>
-        <input type="number" id="holdVOO" value="10" oninput="updateAll()">
-      </div>
-      <div class="input-row" style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-        <label style="font-size:13px">平均買入成本</label>
-        <input type="number" id="costVOO" value="450" oninput="updateAll()">
-      </div>
-    </div>
-  </div>
-
-  <div class="vision-card">
-    <div style="color:var(--success); font-weight:bold; margin-bottom:5px">🚀 35 年複利願景目標</div>
-    <div id="f35" style="font-size:24px; color:#fbbf24; font-weight:800; margin-bottom:10px;">NT$ --</div>
-    <canvas id="vChart" height="150"></canvas>
-  </div>
-</div>
-
-<script>
-  const API_KEY = "Mizli10RkulYZA1eeDqQKfKXfA8iGaji"; 
-  let chart;
-  const USD_TWD = 32.5;
-
-  async function updateAll() {
-    try {
-      const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/VOO,QQQ,SSO,^VIX,SPY?apikey=${API_KEY}`);
-      const data = await res.json();
-      
-      let curVOO = 0;
-      data.forEach(s => {
-        const sym = s.symbol;
-        if(["VOO","QQQ","SSO"].includes(sym)) updatePriceUI(sym.toLowerCase(), s);
-        if(sym === "VOO") curVOO = s.price;
-        if(sym === "^VIX") document.getElementById('vixVal').innerText = s.price.toFixed(1);
-        if(sym === "SPY") {
-          // 模擬 CAPE 邏輯：基於實時 P/E 進行席勒因子校正
-          const cape = s.pe ? (s.pe * 1.15).toFixed(1) : "35.2";
-          document.getElementById('capeVal').innerText = cape;
-          updateAdvice(cape, document.getElementById('vixVal').innerText);
-        }
-      });
-
-      // 損益計算
-      const hold = parseFloat(document.getElementById('holdVOO').value) || 0;
-      const cost = parseFloat(document.getElementById('costVOO').value) || 0;
-      const profit = (curVOO - cost) * hold * USD_TWD;
-      const market = curVOO * hold * USD_TWD;
-      const roi = cost > 0 ? ((curVOO - cost) / cost * 100).toFixed(2) : 0;
-
-      document.getElementById('totalProfitTWD').innerText = "NT$ " + Math.round(profit).toLocaleString();
-      document.getElementById('totalProfitTWD').className = profit >= 0 ? "profit" : "loss";
-      document.getElementById('marketVal').innerText = "NT$ " + Math.round(market).toLocaleString();
-      document.getElementById('roiPct').innerText = roi + "%";
-      document.getElementById('roiPct').className = "track-val " + (roi >= 0 ? "profit" : "loss");
-
-    } catch (e) { console.log("數據同步中..."); }
-    recalcVision();
-  }
-
-  function updatePriceUI(id, s) {
-    document.getElementById(id+'P').innerText = "$" + s.price.toFixed(2);
-    const cEl = document.getElementById(id+'C');
-    cEl.innerText = (s.changesPercentage > 0 ? "+" : "") + s.changesPercentage.toFixed(2) + "%";
-    cEl.className = "change " + (s.changesPercentage >= 0 ? "up" : "down");
-  }
-
-  function updateAdvice(cape, vix) {
-    const m = document.getElementById('actMsg');
-    if (vix > 28) m.innerText = "🔥 市場恐慌：7 號扣款外建議額外加碼";
-    else if (cape > 38) m.innerText = "⚠️ 估值過高：維持 7 號定投，嚴禁追高";
-    else m.innerText = "📈 估值合理：期待每月 7 號的複利累積";
-  }
-
-  function recalcVision() {
-    // 預設投入：家瑞 20000 + 芷吟 6000
-    const totalM = 26000;
-    const r = 0.08 / 12;
-    const calc = (y) => totalM * ((Math.pow(1 + r, y * 12) - 1) / r) * (1 + r);
-    document.getElementById('f35').innerText = "NT$ " + Math.round(calc(35)).toLocaleString();
-
-    const labs = [], dataF = [];
-    for(let i=0; i<=35; i+=5) { labs.push(i+'y'); dataF.push(Math.round(calc(i))); }
-
-    if(chart) chart.destroy();
-    chart = new Chart(document.getElementById('vChart'), {
-      type: 'line',
-      data: {
-        labels: labs,
-        datasets: [{ data: dataF, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 }]
-      },
-      options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { ticks: { color: '#94a3b8' } } } }
-    });
-  }
-
-  setInterval(updateAll, 60000); 
-  updateAll();
-</script>
-</body>
-</html>
+    <div class="total-main">
+        <div class="p-label">💎 兩人合計總損益 (TWD)</div>
+        <div id="totalP" style="font-size: 28px; font-weight: 800;">NT$ 0</div>
+        <div id="totalROI" style="font-size: 12px; font-weight: bold; margin-top: 4px;">+0.00%</div>
