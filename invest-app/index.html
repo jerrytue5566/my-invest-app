@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>我們的財富成長計畫</title>
+  
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root { 
@@ -13,28 +15,37 @@
       --sub: #94a3b8; --accent: #38bdf8; --success: #10b981; 
       --danger: #f87171; --zy-color: #f472b6; --jr-color: #38bdf8; 
     }
-    * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 15px; }
     .container { max-width: 600px; margin: auto; }
+
+    /* 市場報價 */
     .market-strip { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding: 5px 0; scrollbar-width: none; }
     .price-card { background: var(--card); padding: 12px; border-radius: 16px; min-width: 130px; border-left: 4px solid var(--accent); flex-shrink: 0; }
     .price-val { font-size: 17px; font-weight: bold; margin: 2px 0; }
+
+    /* 雙人損益 */
     .tracking-card { background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 24px; padding: 20px; margin-bottom: 15px; border: 1px solid #334155; }
     .total-main { text-align: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .profit-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     .p-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 14px; text-align: center; }
     .p-label { font-size: 10px; color: var(--sub); margin-bottom: 4px; }
     .p-val { font-size: 12px; font-weight: bold; }
+
+    /* 設定區 */
     .config-section { background: var(--card); border-radius: 24px; padding: 20px; margin-bottom: 15px; }
-    .user-config-group { margin-bottom: 15px; padding: 15px; border-radius: 16px; background: rgba(0,0,0,0.2); position: relative; overflow: hidden; border-left: 4px solid transparent; }
+    .user-config-group { margin-bottom: 15px; padding: 15px; border-radius: 16px; background: rgba(0,0,0,0.2); border-left: 4px solid transparent; }
     .zy-side { border-left-color: var(--zy-color); }
     .jr-side { border-left-color: var(--jr-color); }
     .input-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
     input { background: #0f172a; border: 1px solid #334155; color: white; padding: 6px; border-radius: 8px; width: 85px; text-align: right; }
+
+    /* 表格 */
     .table-container { background: var(--card); border-radius: 24px; padding: 15px; margin-top: 15px; }
     table { width: 100%; border-collapse: collapse; font-size: 11px; }
     th { color: var(--sub); text-align: right; padding: 8px; border-bottom: 1px solid #334155; }
     td { padding: 8px; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
     .profit { color: var(--success); } .loss { color: var(--danger); }
   </style>
 </head>
@@ -73,7 +84,9 @@
     </div>
   </div>
 
-  <div class="tracking-card" style="background:var(--card)"><canvas id="vChart" height="180"></canvas></div>
+  <div class="tracking-card" style="background:var(--card); min-height: 200px;">
+    <canvas id="vChart"></canvas>
+  </div>
 
   <div class="table-container">
     <div style="color:var(--accent); font-weight:bold; margin-bottom:10px; font-size:13px">📅 35 年複利成長明細 (8%)</div>
@@ -85,13 +98,32 @@
 </div>
 
 <script>
-  const API_KEY = "Mizli10RkulYZA1eeDqQKfKXfA8iGaji"; 
-  let chart; const USD_TWD = 32.5;
+  document.addEventListener('DOMContentLoaded', () => {
+    const API_KEY = "Mizli10RkulYZA1eeDqQKfKXfA8iGaji"; 
+    let chart; 
+    const USD_TWD = 32.5;
 
-  async function updateAll() {
-    try {
-      const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/VOO,QQQ,SSO?apikey=${API_KEY}`);
-      const data = await res.json();
-      let curVOO = 0;
-      data.forEach(s => {
-        const id
+    window.updateAll = async function() {
+      try {
+        const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/VOO,QQQ,SSO?apikey=${API_KEY}`);
+        const data = await res.json();
+        let curVOO = 0;
+        
+        if (data && Array.isArray(data)) {
+          data.forEach(s => {
+            const id = s.symbol.toLowerCase();
+            const pEl = document.getElementById(id+'P');
+            const cEl = document.getElementById(id+'C');
+            if(pEl) pEl.innerText = "$"+s.price.toFixed(2);
+            if(cEl) {
+                cEl.innerText = (s.changesPercentage>0?"+":"")+s.changesPercentage.toFixed(2)+"%";
+                cEl.className = s.changesPercentage>=0?"profit":"loss";
+            }
+            if(s.symbol==="VOO") curVOO = s.price;
+          });
+        }
+
+        const zH = parseFloat(document.getElementById('zyHold').value)||0, zC = parseFloat(document.getElementById('zyCost').value)||0;
+        const jH = parseFloat(document.getElementById('jrHold').value)||0, jC = parseFloat(document.getElementById('jrCost').value)||0;
+        
+        const zP = (curVOO - zC) * zH * USD_TWD, jP = (curVOO - jC) * jH * USD_
