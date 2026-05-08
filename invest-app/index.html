@@ -3,53 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Golden Vault Pro - BSS 決策系統</title>
+    <title>Golden Vault Pro - Final Stable</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { 
             --bg: #05070a; --card: #111827; --gold: #D4AF37; --gold-bright: #FFD700;
             --text: #f8fafc; --border: #1f2937; --zy-pink: #f472b6;
         }
-        * { margin:0; padding:0; box-sizing:border-box; font-family: "Inter", -apple-system, sans-serif; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: "Inter", sans-serif; }
         body { background:var(--bg); color:var(--text); padding:15px; }
         .container { max-width:480px; margin:auto; }
 
-        /* 價格看板 */
         .price-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:15px; }
-        .p-box { 
-            background: rgba(255, 255, 255, 0.03); padding: 12px 2px; border-radius: 12px; 
-            text-align: center; border: 1px solid var(--gold);
-        }
-        .p-label { font-size: 10px; color: var(--gold); margin-bottom: 4px; font-weight: 800; }
-        .profit { color: #fff; font-weight: bold; font-size: 13px; }
+        .p-box { background: rgba(255, 255, 255, 0.03); padding: 12px 2px; border-radius: 12px; text-align: center; border: 1px solid var(--gold); }
+        .p-label { font-size: 10px; color: var(--gold); font-weight: 800; }
+        .profit { color: #fff; font-weight: bold; font-size: 12px; }
 
-        /* --- BSS 視覺化中央面板 --- */
         .bss-container {
             background: linear-gradient(180deg, #1e293b 0%, #111827 100%);
-            border: 2px solid var(--gold);
-            border-radius: 20px;
-            padding: 15px;
-            margin-bottom: 15px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+            border: 2px solid var(--gold); border-radius: 20px;
+            padding: 15px; margin-bottom: 15px; text-align: center;
         }
-        .bss-title { font-size: 11px; color: var(--gold); letter-spacing: 2px; font-weight: bold; margin-bottom: 8px; }
-        .bss-signal { font-size: 16px; font-weight: 900; margin-bottom: 5px; transition: 0.3s; }
-        .bss-logic { font-size: 10px; color: #94a3b8; line-height: 1.4; }
-        /* ----------------------- */
+        .bss-signal { font-size: 16px; font-weight: 900; margin: 5px 0; }
+        .bss-logic { font-size: 10px; color: #94a3b8; }
 
         .user-tab { display: flex; gap: 6px; margin-bottom: 15px; background: #1f2937; padding: 4px; border-radius: 16px; }
-        .tab-btn { flex: 1; padding: 10px; border-radius: 12px; border: none; color: #64748b; cursor: pointer; font-size: 12px; font-weight: bold; background: transparent; }
+        .tab-btn { flex: 1; padding: 10px; border-radius: 12px; border: none; color: #64748b; cursor: pointer; font-size: 12px; font-weight: bold; background: transparent; transition: 0.3s; }
         .tab-btn.active-jr { background: var(--gold); color: #000; }
         .tab-btn.active-zy { background: var(--zy-pink); color: #fff; }
         .tab-btn.active-all { background: linear-gradient(90deg, #B8860B, #FFD700); color: #000; }
 
         .main-card { 
-            background: linear-gradient(180deg, #1f2937 0%, #05070a 100%);
+            background: radial-gradient(circle at top right, #1e293b, #05070a);
             border: 1px solid var(--gold); border-radius: 28px; padding: 25px 20px; text-align: center; margin-bottom: 15px;
         }
         #totalValue { font-size: 36px; margin: 8px 0; font-weight: 900; color: #fff; text-shadow: 0 0 10px var(--gold); }
+        
         .card { background:var(--card); border-radius:24px; padding:20px; margin-bottom:15px; border: 1px solid #374151; }
+        label { font-size: 10px; color: #94a3b8; display: block; margin-bottom: 5px; }
         input { width: 100%; background: #05070a; border: 1px solid #374151; color: #fff; padding: 8px; border-radius: 10px; text-align: center; }
         input[type="range"] { accent-color: var(--gold); margin: 15px 0; }
         .chart-container { height: 180px; }
@@ -66,38 +57,44 @@
     </div>
 
     <div class="bss-container">
-        <div class="bss-title">MARKET BUY SIGNALS SYSTEM (BSS)</div>
+        <div style="font-size:10px; color:var(--gold); font-weight: bold;">BSS STRATEGY INDICATOR</div>
         <div id="bss-signal" class="bss-signal">分析中...</div>
-        <div id="bss-logic" class="bss-logic">數據同步中，請稍候</div>
+        <div id="bss-logic" class="bss-logic">數據同步中...</div>
     </div>
 
     <div class="user-tab">
-        <button id="btnJR" class="tab-btn active-jr" onclick="switchUser('jr')">家瑞帳戶</button>
-        <button id="btnZY" class="tab-btn" onclick="switchUser('zy')">芷吟帳戶</button>
-        <button id="btnALL" class="tab-btn" onclick="switchUser('all')">家庭金庫</button>
+        <button id="btnJR" class="tab-btn active-jr" onclick="switchUser('jr')">家瑞</button>
+        <button id="btnZY" class="tab-btn" onclick="switchUser('zy')">芷吟</button>
+        <button id="btnALL" class="tab-btn" onclick="switchUser('all')">家庭總額</button>
     </div>
 
     <div class="main-card">
-        <p style="font-size:10px; color:var(--gold); font-weight: bold;">LIVE ASSET VALUE (TWD)</p>
+        <p style="font-size:10px; color:var(--gold); font-weight: bold; letter-spacing: 2px;">當前資產市值 (TWD)</p>
         <h1 id="totalValue">NT$ 0</h1>
         <div style="font-size:11px; color:#94a3b8; margin-top:5px;">
-            起點：2026/05/07 | 累計投入：<span id="monthCount" style="color:var(--gold)">1</span> 個月
+            起點：2026/05/07 | 累計投入：1 個月
         </div>
     </div>
 
     <div class="card" id="inputCard">
-        <p style="font-size:12px; color:var(--gold); margin-bottom:10px; font-weight:bold; text-align:center;">5/7 初始持股量</p>
-        <div style="display:flex; gap:10px;">
-            <div style="flex:1;"><label style="font-size:10px; color:#94a3b8; display:block; text-align:center;">VOO</label><input type="number" id="initVOO" value="32" oninput="update()"></div>
-            <div style="flex:1;"><label style="font-size:10px; color:#94a3b8; display:block; text-align:center;">QQQ</label><input type="number" id="initQQQ" value="12" oninput="update()"></div>
-            <div style="flex:1;"><label style="font-size:10px; color:#94a3b8; display:block; text-align:center;">SSO</label><input type="number" id="initSSO" value="0" oninput="update()"></div>
+        <p style="font-size:12px; color:var(--gold); margin-bottom:10px; font-weight:bold; text-align:center;">每月台幣投入設定</p>
+        <div id="jr-inputs" style="display:block;">
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1;"><label>家瑞 VOO</label><input type="number" id="jrVOO" value="14000" oninput="update()"></div>
+                <div style="flex:1;"><label>家瑞 QQQ</label><input type="number" id="jrQQQ" value="6000" oninput="update()"></div>
+            </div>
+        </div>
+        <div id="zy-inputs" style="display:none; margin-top: 10px;">
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1;"><label>芷吟 VOO</label><input type="number" id="zyVOO" value="6000" oninput="update()"></div>
+            </div>
         </div>
     </div>
 
     <div class="card">
-        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight: bold;">
+        <div style="display:flex; justify-content:space-between; font-size:12px;">
             <span>年限：<span id="yearVal" style="color:var(--gold)">10</span> 年</span>
-            <span style="color:#94a3b8">推估年化：<span id="estRate" style="color:var(--gold)">11.2%</span></span>
+            <span>推估年化：<span style="color:var(--gold)">11.5%</span></span>
         </div>
         <input type="range" id="yearSlider" min="1" max="40" value="10" oninput="update()">
         <div class="chart-container"><canvas id="vChart"></canvas></div>
@@ -107,14 +104,9 @@
 <script>
     let currentUser = 'jr';
     let myChart = null;
-    let prices = { voo: 677.64, qqq: 705.22, sso: 65.99, vix: 17.34, twd: 32.8 };
+    const basePrices = { voo: 677.64, qqq: 705.22 };
+    let prices = { voo: 677.64, qqq: 705.22, sso: 65.99, vix: 17.34, twd: 32.85 };
     const apiKey = "Mizli10RkulYZA1eeDqQKfKXfA8iGaji";
-
-    const config = {
-        jr: { plans: [{t:'VOO', m:14000, r:0.092}, {t:'QQQ', m:6000, r:0.125}], color: '#D4AF37' },
-        zy: { plans: [{t:'QQQ', m:6000, r:0.125}], color: '#f472b6' },
-        all: { color: '#FFD700' }
-    };
 
     async function syncMarket() {
         try {
@@ -126,12 +118,11 @@
                     prices[s] = item.price;
                 });
             }
-        } catch (e) { console.log("使用保底數據..."); }
+        } catch (e) { console.log("使用保底數據"); }
         updateBSS();
         update();
     }
 
-    // --- BSS 邏輯判斷 ---
     function updateBSS() {
         const signalEl = document.getElementById('bss-signal');
         const logicEl = document.getElementById('bss-logic');
@@ -140,18 +131,17 @@
         if (vix >= 40) {
             signalEl.innerText = "👑 十年難得一遇 ALL IN";
             signalEl.style.color = "#FF4444";
-            logicEl.innerText = "VIX 指數 > 40。市場極度恐慌，這是歷史性的財富重分配機會，建議動用備用現金全力加碼。";
+            logicEl.innerText = "VIX > 40。極度恐慌！這是歷史級買點，建議動用加碼資金。";
         } else if (vix >= 26) {
             signalEl.innerText = "⚖️ 可分批逢低買進";
             signalEl.style.color = "#10B981";
-            logicEl.innerText = "VIX 指數介於 26-40 之間。市場出現健康修正，估值具吸引力，建議執行分批加碼計畫。";
+            logicEl.innerText = "VIX 26-40。市場修正中，價值顯現，適合分批加碼。";
         } else {
             signalEl.innerText = "🔥 市場狂熱中：定期定額";
             signalEl.style.color = "#94A3B8";
-            logicEl.innerText = "VIX 指數 < 26。目前處於牛市擴張期，建議維持原有定期定額節奏，不宜過度追高。";
+            logicEl.innerText = "VIX < 26。行情穩定，維持原本定期定額節奏即可。";
         }
 
-        // 更新報價顯示
         ['voo','qqq','sso','vix'].forEach(s => {
             document.getElementById(`${s}-p`).innerText = prices[s].toFixed(2);
         });
@@ -161,35 +151,42 @@
         currentUser = u;
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-jr', 'active-zy', 'active-all'));
         document.getElementById('btn' + u.toUpperCase()).classList.add('active-' + u);
+        document.getElementById('jr-inputs').style.display = (u === 'zy' ? 'none' : 'block');
+        document.getElementById('zy-inputs').style.display = (u === 'jr' ? 'none' : 'block');
         update();
     }
 
     function update() {
         const years = parseInt(document.getElementById('yearSlider').value);
         document.getElementById('yearVal').innerText = years;
-        let plans = (currentUser === 'all') ? [...config.jr.plans, ...config.zy.plans] : config[currentUser].plans;
-        let v_s = parseFloat(document.getElementById('initVOO').value)||0;
-        let q_s = parseFloat(document.getElementById('initQQQ').value)||0;
-        let s_s = parseFloat(document.getElementById('initSSO').value)||0;
-        
-        let startWealth = (v_s * prices.voo + q_s * prices.qqq + s_s * prices.sso) * prices.twd;
-        if(currentUser === 'zy') startWealth = (q_s * prices.qqq) * prices.twd;
 
-        const avgRate = plans.reduce((a,b)=>a+b.r,0) / plans.length || 0.11;
-        document.getElementById('estRate').innerText = (avgRate*100).toFixed(1) + "%";
+        const jrV = parseFloat(document.getElementById('jrVOO').value)||0;
+        const jrQ = parseFloat(document.getElementById('jrQQQ').value)||0;
+        const zyV = parseFloat(document.getElementById('zyVOO').value)||0;
 
-        let labels = [], data = [], cost = [];
+        const jrCurrent = (jrV * (prices.voo/basePrices.voo)) + (jrQ * (prices.qqq/basePrices.qqq));
+        const zyCurrent = (zyV * (prices.voo/basePrices.voo));
+
+        let currentTotal = 0;
+        let monthlyInvest = 0;
+        if(currentUser === 'jr') { currentTotal = jrCurrent; monthlyInvest = jrV + jrQ; }
+        else if(currentUser === 'zy') { currentTotal = zyCurrent; monthlyInvest = zyV; }
+        else { currentTotal = jrCurrent + zyCurrent; monthlyInvest = jrV + jrQ + zyV; }
+
+        document.getElementById('totalValue').innerText = "NT$ " + Math.round(currentTotal).toLocaleString();
+
+        // 圖表數據：當前本金為起點
+        let labels = [], dataPoints = [], costPoints = [];
+        const annualRate = 0.115; // 推估年化 11.5%
         for (let i = 0; i <= years; i++) {
             labels.push(i + 'y');
-            let futureV = startWealth * Math.pow(1 + avgRate, i);
-            let monthlyTotal = plans.reduce((a, b) => a + b.m, 0);
-            let r = avgRate/12, n = i*12;
-            if(n > 0) futureV += monthlyTotal * ((Math.pow(1+r, n)-1)/r);
-            data.push(Math.round(futureV));
-            cost.push(Math.round(startWealth + monthlyTotal * 12 * i));
+            let futureV = currentTotal * Math.pow(1 + annualRate, i);
+            let r = annualRate/12, n = i*12;
+            if(n > 0) futureV += monthlyInvest * ((Math.pow(1+r, n)-1)/r);
+            dataPoints.push(Math.round(futureV));
+            costPoints.push(Math.round(currentTotal + monthlyInvest * 12 * i));
         }
-        document.getElementById('totalValue').innerText = "NT$ " + data[data.length-1].toLocaleString();
-        renderChart(labels, data, cost);
+        renderChart(labels, dataPoints, costPoints);
     }
 
     function renderChart(labels, data, cost) {
@@ -200,26 +197,17 @@
             data: {
                 labels: labels,
                 datasets: [{
-                    label: '市值', data: data, borderColor: config[currentUser].color || '#D4AF37', 
-                    borderWidth: 4, pointRadius: 0, tension: 0.4, fill: true,
-                    backgroundColor: 'rgba(212, 175, 55, 0.1)'
+                    label: '預估', data: data, borderColor: '#D4AF37', borderWidth: 3, pointRadius: 0, fill: true, backgroundColor: 'rgba(212,175,55,0.1)', tension: 0.4
                 }, {
                     label: '成本', data: cost, borderColor: 'rgba(255,255,255,0.1)', borderDash: [5,5], pointRadius: 0
                 }]
             },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { ticks: { color: '#64748b', callback: v => (v/10000)+'萬' }, grid: { color: 'rgba(255,255,255,0.03)' } },
-                    x: { ticks: { color: '#64748b' } }
-                }
-            }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#64748b', callback: v => (v/10000)+'萬' }, grid: { color: 'rgba(255,255,255,0.03)' } }, x: { ticks: { color: '#64748b' } } } }
         });
     }
 
-    setInterval(syncMarket, 60000); 
     window.onload = syncMarket;
+    setInterval(syncMarket, 60000);
 </script>
 </body>
 </html>
