@@ -16,18 +16,20 @@
     :root {
       --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
       --sub: #94a3b8; --accent: #38bdf8; --success: #10b981; --danger: #f87171;
-      --zy-color: #f472b6; --jr-color: #38bdf8;
+      --zy-color: #f472b6; --jr-color: #38bdf8; --tw-color: #fbbf24;
     }
     * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 15px; padding-bottom: env(safe-area-inset-bottom); }
     .container { max-width: 600px; margin: auto; }
 
-    /* 頂部即時行情 */
-    .market-strip { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding: 5px 0; }
-    .price-card { background: var(--card); padding: 10px 15px; border-radius: 14px; min-width: 120px; border-left: 4px solid var(--accent); }
+    /* 頂部即時行情 - 支援橫向捲動 */
+    .market-strip { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding: 5px 0; -webkit-overflow-scrolling: touch; }
+    .price-card { background: var(--card); padding: 10px 15px; border-radius: 14px; min-width: 130px; border-left: 4px solid var(--accent); }
+    .price-card.tw { border-left-color: var(--tw-color); }
     .price-card h4 { font-size: 11px; color: var(--sub); }
     .price-val { font-size: 16px; font-weight: bold; margin: 2px 0; }
     .up { color: var(--success); font-size: 11px; font-weight: bold; }
+    .down { color: var(--danger); font-size: 11px; font-weight: bold; }
 
     /* 市場指標與建議 */
     .strategy-box { background: #111827; border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; }
@@ -64,9 +66,10 @@
 
 <div class="container">
   <div class="market-strip">
-    <div class="price-card"><h4>SPY (S&P 500)</h4><div id="spyP" class="price-val">--</div><div class="up">+0.32%</div></div>
-    <div class="price-card"><h4>VOO (Vanguard)</h4><div id="vooP" class="price-val">--</div><div class="up">+0.35%</div></div>
-    <div class="price-card"><h4>QQQ (Nasdaq)</h4><div id="qqqP" class="price-val">--</div><div class="up">+0.48%</div></div>
+    <div class="price-card tw"><h4>TAIEX (台股)</h4><div id="twP" class="price-val">--</div><div id="twC" class="up">--</div></div>
+    <div class="price-card tw"><h4>TSMC (2330)</h4><div id="tsmcP" class="price-val">--</div><div id="tsmcC" class="up">--</div></div>
+    <div class="price-card"><h4>VOO (S&P 500)</h4><div id="vooP" class="price-val">--</div><div id="vooC" class="up">--</div></div>
+    <div class="price-card"><h4>QQQ (Nasdaq)</h4><div id="qqqP" class="price-val">--</div><div id="qqqC" class="up">--</div></div>
   </div>
 
   <div class="strategy-box">
@@ -90,7 +93,7 @@
   </div>
 
   <div class="vision-card">
-    <div class="vision-header"><span>🚀 35 年複利夢想清單</span><span>年化預估 8%</span></div>
+    <div class="vision-header"><span>🚀 35 年複利願景</span><span>年化預估 8%</span></div>
     
     <div class="stat-group">
       <div class="stat-item"><span class="stat-label">每月合計投入</span><span class="stat-value" id="mTotal">$ --</span></div>
@@ -105,7 +108,7 @@
     <canvas id="visionChart" height="160"></canvas>
   </div>
 
-  <div class="footer-note">市場數據每 10 秒更新一次 | 複利計算包含每月持續投入</div>
+  <div class="footer-note">市場數據模擬每 10 秒更新一次 | 包含每月持續投入之複利計算</div>
 </div>
 
 <script>
@@ -145,8 +148,8 @@
       data: {
         labels: labels,
         datasets: [
-          { label: '資產增長', data: dataF, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 },
-          { label: '累積本金', data: dataP, borderColor: '#94a3b8', borderDash: [5, 5], fill: false, tension: 0 }
+          { label: '預計資產', data: dataF, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 },
+          { label: '累積投入本金', data: dataP, borderColor: '#94a3b8', borderDash: [5, 5], fill: false, tension: 0 }
         ]
       },
       options: {
@@ -168,11 +171,25 @@
     else if(cape > 35 && vix < 15) msg = "⚠️ 估值偏高：謹慎追高";
     document.getElementById('actionMsg').innerText = msg;
 
-    // 模擬即時行情
-    const p = { s: (520+Math.random()).toFixed(2), v: (480+Math.random()).toFixed(2), q: (440+Math.random()).toFixed(2) };
-    document.getElementById('spyP').innerText = "$" + p.s;
-    document.getElementById('vooP').innerText = "$" + p.v;
-    document.getElementById('qqqP').innerText = "$" + p.q;
+    // 模擬即時行情 (包含台美股)
+    const p = { 
+        tw: (21500+Math.random()*100).toFixed(0), twc: "+0.45%",
+        tsmc: (950+Math.random()*5).toFixed(1), tsmcc: "+0.82%",
+        voo: (480+Math.random()).toFixed(2), vooc: "+0.35%",
+        qqq: (440+Math.random()).toFixed(2), qqqc: "+0.48%"
+    };
+    
+    updatePriceUI('tw', p.tw, p.twc);
+    updatePriceUI('tsmc', p.tsmc, p.tsmcc);
+    updatePriceUI('voo', p.voo, p.vooc);
+    updatePriceUI('qqq', p.qqq, p.qqqc);
+  }
+
+  function updatePriceUI(id, price, change) {
+      document.getElementById(id+'P').innerText = (id === 'tw' || id === 'tsmc') ? price : "$" + price;
+      const c = document.getElementById(id+'C');
+      c.innerText = change;
+      c.className = change.includes('+') ? 'up' : 'down';
   }
 
   updateAll();
