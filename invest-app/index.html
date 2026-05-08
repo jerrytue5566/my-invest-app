@@ -5,29 +5,129 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Golden Vault Pro - Realtime Cloud</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        /* [保留原本樣式] */
-        :root { --bg: #05070a; --card: #111827; --gold: #D4AF37; --gold-bright: #FFD700; --text: #f8fafc; --zy-pink: #f472b6; --green: #10b981; }
-        * { margin:0; padding:0; box-sizing:border-box; font-family: "Inter", sans-serif; }
-        body { background:var(--bg); color:var(--text); padding:15px; }
-        .container { max-width:480px; margin:auto; }
-        .price-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:15px; }
-        .p-box { background: rgba(255, 255, 255, 0.03); padding: 12px 2px; border-radius: 12px; text-align: center; border: 1px solid var(--gold); position: relative; }
-        .p-label { font-size: 10px; color: var(--gold); font-weight: 800; }
-        .profit { color: #fff; font-weight: bold; font-size: 12px; }
-        .bss-container { background: linear-gradient(180deg, #1e293b 0%, #111827 100%); border: 2px solid var(--gold); border-radius: 20px; padding: 15px; margin-bottom: 15px; text-align: center; }
-        .bss-signal { font-size: 16px; font-weight: 900; }
-        .main-card { background: radial-gradient(circle at top right, #1e293b, #05070a); border: 1px solid var(--gold); border-radius: 28px; padding: 25px 20px; text-align: center; margin-bottom: 15px; }
-        #totalValue { font-size: 34px; font-weight: 900; text-shadow: 0 0 10px var(--gold); }
-        .user-tab { display: flex; gap: 6px; margin-bottom: 15px; background: #1f2937; padding: 4px; border-radius: 16px; }
-        .tab-btn { flex: 1; padding: 10px; border-radius: 12px; border: none; color: #64748b; font-size: 12px; font-weight: bold; background: transparent; cursor: pointer; }
-        .tab-btn.active-jr { background: var(--gold); color: #000; }
-        .tab-btn.active-zy { background: var(--zy-pink); color: #fff; }
-        .card { background:var(--card); border-radius:24px; padding:20px; margin-bottom:15px; border: 1px solid #374151; }
-        .chart-container { height: 180px; width: 100%; }
-        .refresh-btn { position: absolute; top: -5px; right: -5px; background: var(--gold); border: none; border-radius: 50%; width: 15px; height: 15px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; color: var(--gold); flex-direction: column; gap: 10px; }
-    </style>
+  <style>
+    :root { 
+        /* 重新定義質感灰金配色 */
+        --bg: #1a1a1a;            /* 深岩灰背景 */
+        --card: #242424;          /* 稍淺的卡片灰 */
+        --gold: #D4AF37;          /* 經典香檳金 */
+        --gold-bright: #FFD700;   /* 亮金色 */
+        --text: #e0e0e0;          /* 淺灰色文字，減少視覺疲勞 */
+        --border: #333333;        /* 內部暗邊框 */
+        --zy-pink: #f472b6;       /* 芷吟專屬粉 */
+        --green: #10b981; 
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; font-family: "Inter", "Microsoft JhengHei", sans-serif; }
+    
+    body { 
+        background: var(--bg); 
+        color: var(--text); 
+        padding: 15px; 
+        background-image: radial-gradient(circle at 50% 50%, #2a2a2a 0%, #1a1a1a 100%); /* 增加背景漸層感 */
+    }
+
+    .container { max-width:480px; margin:auto; }
+
+    /* 報價區塊：金色細邊框 */
+    .p-box { 
+        background: var(--card); 
+        padding: 12px 2px; 
+        border-radius: 12px; 
+        text-align: center; 
+        border: 1px solid var(--gold); /* 核心金色邊框 */
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    /* BSS 面板：加強金色發光感 */
+    .bss-container { 
+        background: var(--card); 
+        border: 2px solid var(--gold); 
+        border-radius: 20px; 
+        padding: 15px; 
+        margin-bottom: 15px; 
+        text-align: center;
+        box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); 
+    }
+
+    /* 主市值卡片：精品飯店風格 */
+    .main-card { 
+        background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+        border: 1.5px solid var(--gold); 
+        border-radius: 28px; 
+        padding: 25px 20px; 
+        text-align: center; 
+        margin-bottom: 15px;
+        box-shadow: 5px 5px 15px #111, -2px -2px 10px #333;
+    }
+
+    #totalValue { 
+        font-size: 34px; 
+        font-weight: 900; 
+        color: var(--gold-bright); /* 數字用亮金色 */
+        text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        margin-bottom: 10px; 
+    }
+
+    /* 帳戶切換鈕：灰色基底 */
+    .user-tab { 
+        display: flex; 
+        gap: 6px; 
+        margin-bottom: 15px; 
+        background: #000; 
+        padding: 4px; 
+        border-radius: 16px; 
+    }
+
+    .tab-btn { 
+        flex: 1; 
+        padding: 10px; 
+        border-radius: 12px; 
+        border: none; 
+        color: #888; 
+        font-size: 12px; 
+        font-weight: bold; 
+        background: transparent; 
+        cursor: pointer; 
+    }
+
+    .tab-btn.active-jr { background: var(--gold); color: #000; }
+    .tab-btn.active-zy { background: var(--zy-pink); color: #fff; }
+
+    /* 輸入區與紀錄區：深灰質感 */
+    .card { 
+        background: var(--card); 
+        border-radius: 24px; 
+        padding: 20px; 
+        margin-bottom: 15px; 
+        border: 1px solid #333; 
+    }
+
+    input, select { 
+        background: #111; 
+        border: 1px solid var(--gold); /* 輸入框也配金色邊框 */
+        color: #fff; 
+        padding: 10px; 
+        border-radius: 10px; 
+    }
+
+    .add-btn { 
+        background: linear-gradient(to bottom, var(--gold-bright), var(--gold));
+        color: #000; 
+        border: none; 
+        border-radius: 10px; 
+        font-weight: bold; 
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    /* 圖表區 */
+    .chart-container { 
+        background: rgba(0,0,0,0.2);
+        border-radius: 15px;
+        padding: 10px;
+    }
+</style>
 </head>
 <body>
 
