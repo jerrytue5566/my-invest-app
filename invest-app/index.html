@@ -3,71 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="我們的財富計畫">
     <title>我們的財富成長計畫</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg:#0f172a; --card:#1e293b; --text:#f8fafc; --accent:#38bdf8; --success:#10b981; --zy:#f472b6; --jr:#38bdf8; }
-        * { margin:0; padding:0; box-sizing:border-box; font-family:sans-serif; }
-        body { background:var(--bg); color:var(--text); padding:15px; }
-        .container { max-width:500px; margin:auto; }
-        .card { background:var(--card); border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #334155; }
-        .price-grid { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-bottom:15px; }
-        .p-box { background:rgba(255,255,255,0.05); padding:10px; border-radius:15px; text-align:center; }
-        .profit { color:var(--success); font-weight:bold; }
-        input { background:#0f172a; border:1px solid #475569; color:white; padding:5px 10px; border-radius:8px; width:80px; text-align:right; }
+        :root { --bg:#0f172a; --card:#1e293b; --text:#f8fafc; --sub:#94a3b8; --accent:#38bdf8; --success:#10b981; --danger:#f87171; --zy:#f472b6; --jr:#38bdf8; --vix:#fbbf24; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system, system-ui, sans-serif; }
+        body { background:var(--bg); color:var(--text); padding:15px; -webkit-tap-highlight-color:transparent; }
+        .container { max-width:500px; margin:auto; padding-top: constant(safe-area-inset-top); padding-top: env(safe-area-inset-top); }
+        .market-strip { display:flex; gap:10px; margin-bottom:15px; overflow-x:auto; padding-bottom:8px; -webkit-overflow-scrolling:touch; }
+        .price-card { background:var(--card); padding:12px; border-radius:16px; min-width:105px; border-top:3px solid var(--accent); flex:1; box-shadow:0 4px 6px rgba(0,0,0,0.1); }
+        .vix-card { border-top-color: var(--vix); }
+        .tracking-card { background:linear-gradient(145deg, #1e293b, #0f172a); border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #334155; box-shadow:0 10px 15px rgba(0,0,0,0.2); }
+        .profit-row { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-top:15px; }
+        .p-box { background:rgba(255,255,255,0.05); padding:10px; border-radius:14px; text-align:center; }
+        .input-group { background:var(--card); border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #334155; }
+        .user-section { margin-bottom:15px; padding:15px; border-radius:16px; background:rgba(0,0,0,0.2); border-left:4px solid transparent; }
+        .input-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+        input { background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:12px; width:100px; text-align:right; font-size:16px; outline:none; }
+        table { width:100%; border-collapse:collapse; font-size:12px; margin-top:10px; }
+        td, th { padding:12px 8px; text-align:right; border-bottom:1px solid rgba(255,255,255,0.05); }
+        .profit { color:var(--success); font-weight:bold; } .loss { color:var(--danger); font-weight:bold; }
+        .zy-text { color:var(--zy); font-weight:bold; } .jr-text { color:var(--jr); font-weight:bold; }
     </style>
 </head>
 <body>
 <div class="container">
-    <div class="price-grid">
-        <div class="p-box">VOO<div id="vooP" class="profit">--</div></div>
-        <div class="p-box">QQQ<div id="qqqP" class="profit">--</div></div>
-        <div class="p-box">SSO<div id="ssoP" class="profit">--</div></div>
+    <div class="market-strip">
+        <div class="price-card"><h4>VOO</h4><div id="vooP" style="font-size:18px;font-weight:bold">--</div><div id="vooC" style="font-size:11px">--</div></div>
+        <div class="price-card"><h4>QQQ</h4><div id="qqqP" style="font-size:18px;font-weight:bold">--</div><div id="qqqC" style="font-size:11px">--</div></div>
+        <div class="price-card"><h4>SSO</h4><div id="ssoP" style="font-size:18px;font-weight:bold">--</div><div id="ssoC" style="font-size:11px">--</div></div>
+        <div class="price-card vix-card"><h4>VIX</h4><div id="vixP" style="font-size:18px;font-weight:bold;color:var(--vix)">--</div><div id="vixC" style="font-size:11px">--</div></div>
     </div>
-    <div class="card" style="text-align:center;">
-        <p style="font-size:12px;color:#94a3b8">📊 雙人合計總損益 (TWD)</p>
-        <h1 id="totalP" style="font-size:32px;margin:10px 0;">NT$ 0</h1>
-    </div>
-    <div class="card">
-        <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-            <span style="color:var(--zy)">🌸 芷吟 VOO</span>
-            <input type="number" id="zH" value="10" oninput="update()">
+
+    <div class="tracking-card">
+        <div style="text-align:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:15px; margin-bottom:15px;">
+            <p style="font-size:12px; color:var(--sub)">📊 雙人合計總損益 (TWD)</p>
+            <h1 id="totalP" style="font-size:36px; font-weight:800; margin:5px 0;">NT$ 0</h1>
+            <div id="totalROI" style="font-weight:bold;">+0.00%</div>
+            <div id="fxRate" style="font-size:10px; color:var(--sub); margin-top:8px;">USD/TWD: --</div>
         </div>
-        <div style="display:flex;justify-content:space-between;">
-            <span style="color:var(--jr)">💎 家瑞 VOO</span>
-            <input type="number" id="jH" value="30" oninput="update()">
+        <div class="profit-row">
+            <div class="p-box" style="border-top:2px solid var(--zy)"><div style="font-size:10px;color:var(--zy)">🌸 芷吟</div><div id="zyP" style="font-size:14px;font-weight:bold">--</div></div>
+            <div class="p-box" style="border-top:2px solid var(--jr)"><div style="font-size:10px;color:var(--jr)">💎 家瑞</div><div id="jrP" style="font-size:14px;font-weight:bold">--</div></div>
+            <div class="p-box"><div style="font-size:10px;color:var(--sub)">總市值</div><div id="allM" style="font-size:11px;font-weight:bold">--</div></div>
         </div>
     </div>
-    <div class="card" style="height:250px;"><canvas id="vChart"></canvas></div>
+
+    <div class="input-group">
+        <div class="user-section" style="border-left-color:var(--zy)">
+            <p class="zy-text">🌸 芷吟持倉</p>
+            <div class="input-row"><span>VOO 股數</span><input type="number" id="zH" value="10" oninput="updateAll()"></div>
+            <div class="input-row"><span>平均成本</span><input type="number" id="zC" value="450" oninput="updateAll()"></div>
+        </div>
+        <div class="user-section" style="border-left-color:var(--jr)">
+            <p class="jr-text">💎 家瑞持倉</p>
+            <div class="input-row"><span>VOO 股數</span><input type="number" id="jH" value="30" oninput="updateAll()"></div>
+            <div class="input-row"><span>平均成本</span><input type="number" id="jC" value="460" oninput="updateAll()"></div>
+        </div>
+    </div>
+
+    <div class="tracking-card" style="height:250px;"><canvas id="vChart"></canvas></div>
+    <div class="tracking-card"><table id="vTable"></table></div>
+    <p style="text-align:center; font-size:11px; color:var(--sub); padding-bottom:30px;">給芷吟：這是我們未來的起點 ❤️</p>
 </div>
+
 <script>
-    async function update() {
-        const key = "Mizli10RkulYZA1eeDqQKfKXfA8iGaji";
-        let vPrice = 510; // 萬一 API 沒回應的保底價
+    const API_KEY = "Mizli10RkulYZA1eeDqQKfKXfA8iGaji"; 
+    let chart; 
+
+    async function updateAll() {
+        let curVOO = 510, usdTwd = 32.5;
         try {
-            const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/VOO,QQQ,SSO?apikey=${key}`);
+            const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/VOO,QQQ,SSO,^VIX?apikey=${API_KEY}`);
             const data = await res.json();
             data.forEach(s => {
-                document.getElementById(s.symbol.toLowerCase()+'P').innerText = "$"+s.price.toFixed(1);
-                if(s.symbol === "VOO") vPrice = s.price;
+                const sym = s.symbol === "^VIX" ? "vix" : s.symbol.toLowerCase();
+                if(document.getElementById(sym+'P')) {
+                    document.getElementById(sym+'P').innerText = s.price.toFixed(2);
+                    const c = document.getElementById(sym+'C');
+                    c.innerText = (s.changesPercentage > 0 ? "+" : "") + s.changesPercentage.toFixed(2) + "%";
+                    c.className = s.changesPercentage >= 0 ? "profit" : "loss";
+                }
+                if(s.symbol === "VOO") curVOO = s.price;
             });
-        } catch(e) { console.log("API 載入中..."); }
+
+            const fxRes = await fetch(`https://financialmodelingprep.com/api/v3/quote/USDTWD?apikey=${API_KEY}`);
+            const fxData = await fxRes.json();
+            if(fxData[0]) {
+                usdTwd = fxData[0].price;
+                document.getElementById('fxRate').innerText = "USD/TWD 即時匯率: " + usdTwd.toFixed(2);
+            }
+        } catch(e) { console.log("數據更新中..."); }
+
+        const zH = parseFloat(document.getElementById('zH').value)||0, zC = parseFloat(document.getElementById('zC').value)||0;
+        const jH = parseFloat(document.getElementById('jH').value)||0, jC = parseFloat(document.getElementById('jC').value)||0;
         
-        const zH = parseFloat(document.getElementById('zH').value)||0;
-        const jH = parseFloat(document.getElementById('jH').value)||0;
-        const totalProfit = ((vPrice - 450) * zH + (vPrice - 460) * jH) * 32.5;
-        document.getElementById('totalP').innerText = "NT$ " + Math.round(totalProfit).toLocaleString();
-        render();
+        const zP = (curVOO - zC) * zH * usdTwd;
+        const jP = (curVOO - jC) * jH * usdTwd;
+        const totalP = zP + jP;
+        const totalCost = (zH * zC + jH * jC) * usdTwd;
+
+        document.getElementById('zyP').innerText = Math.round(zP).toLocaleString();
+        document.getElementById('jrP').innerText = Math.round(jP).toLocaleString();
+        document.getElementById('totalP').innerText = "NT$ " + Math.round(totalP).toLocaleString();
+        document.getElementById('totalP').className = totalP >= 0 ? "profit" : "loss";
+        document.getElementById('totalROI').innerText = (totalP / (totalCost || 1) * 100).toFixed(2) + "%";
+        document.getElementById('totalROI').className = totalP >= 0 ? "profit" : "loss";
+        document.getElementById('allM').innerText = Math.round((zH + jH) * curVOO * usdTwd).toLocaleString();
+
+        renderVision();
     }
-    function render() {
-        if(window.myChart) window.myChart.destroy();
-        const ctx = document.getElementById('vChart').getContext('2d');
-        window.myChart = new Chart(ctx, {
-            type:'line', data:{labels:['0y','10y','20y','35y'], datasets:[{data:[0,150,500,2000], borderColor:'#10b981', fill:true, tension:0.4}]},
-            options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}}
+
+    function renderVision() {
+        const m = 26000, r = 0.08 / 12, labs = [], dataF = [], rows = [];
+        const calc = (y) => m * ((Math.pow(1 + r, y * 12) - 1) / r) * (1 + r);
+        for (let i = 0; i <= 35; i++) {
+            const fv = calc(i);
+            if (i % 5 === 0) { labs.push(i + 'y'); dataF.push(Math.round(fv)); }
+            rows.push(`<tr><td style="text-align:left">${i}年後</td><td>${Math.round(m*12*i/10000)}萬</td><td class="profit">${Math.round(fv/10000)}萬</td></tr>`);
+        }
+        document.getElementById('vTable').innerHTML = `<thead><tr><th style="text-align:left">時間</th><th>累計本金</th><th>資產預估</th></tr></thead>` + rows.join('');
+        if (chart) chart.destroy();
+        chart = new Chart(document.getElementById('vChart'), {
+            type: 'line',
+            data: { labels: labs, datasets: [{ data: dataF, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { ticks: { color: '#94a3b8' } } } }
         });
     }
-    window.onload = update;
+
+    window.onload = updateAll;
+    setInterval(updateAll, 60000);
 </script>
 </body>
 </html>
