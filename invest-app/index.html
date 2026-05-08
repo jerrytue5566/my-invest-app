@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Golden Vault - 歷史精算版</title>
+    <title>Golden Vault - 終極大滿貫</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { 
@@ -14,32 +14,49 @@
         body { background:var(--bg); color:var(--text); padding:15px; }
         .container { max-width:480px; margin:auto; }
 
+        /* 1. 報價看板 */
         .price-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:15px; }
         .p-box { background: rgba(255, 255, 255, 0.03); padding: 12px 2px; border-radius: 12px; text-align: center; border: 1px solid var(--gold); }
         .p-label { font-size: 10px; color: var(--gold); font-weight: 800; }
         .profit { color: #fff; font-weight: bold; font-size: 12px; }
 
-        .main-card { 
-            background: radial-gradient(circle at top right, #1e293b, #05070a);
-            border: 2px solid var(--gold); border-radius: 28px; padding: 25px 20px; text-align: center; margin-bottom: 15px;
+        /* 2. BSS 策略指示燈 (補回) */
+        .bss-container { 
+            background: linear-gradient(180deg, #1e293b 0%, #111827 100%); 
+            border: 2px solid var(--gold); border-radius: 20px; 
+            padding: 15px; margin-bottom: 15px; text-align: center;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
         }
-        #totalValue { font-size: 36px; font-weight: 900; text-shadow: 0 0 10px var(--gold); }
+        .bss-signal { font-size: 16px; font-weight: 900; margin: 4px 0; }
+        .bss-logic { font-size: 10px; color: #94a3b8; }
 
+        /* 3. 帳戶切換 */
         .user-tab { display: flex; gap: 6px; margin-bottom: 15px; background: #1f2937; padding: 4px; border-radius: 16px; }
-        .tab-btn { flex: 1; padding: 10px; border-radius: 12px; border: none; color: #64748b; font-size: 12px; font-weight: bold; background: transparent; cursor: pointer; }
+        .tab-btn { flex: 1; padding: 10px; border-radius: 12px; border: none; color: #64748b; font-size: 12px; font-weight: bold; background: transparent; cursor: pointer; transition: 0.3s; }
         .tab-btn.active-jr { background: var(--gold); color: #000; }
         .tab-btn.active-zy { background: var(--zy-pink); color: #fff; }
         .tab-btn.active-all { background: linear-gradient(90deg, #B8860B, #FFD700); color: #000; }
 
+        /* 4. 市值看板 */
+        .main-card { 
+            background: radial-gradient(circle at top right, #1e293b, #05070a);
+            border: 1px solid var(--gold); border-radius: 28px; padding: 25px 20px; text-align: center; margin-bottom: 15px;
+        }
+        #totalValue { font-size: 34px; font-weight: 900; text-shadow: 0 0 10px var(--gold); margin-bottom: 8px; }
+        .stats-row { display: flex; justify-content: space-around; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
+
+        /* 5. 記帳功能 */
         .card { background:var(--card); border-radius:24px; padding:20px; margin-bottom:15px; border: 1px solid #374151; }
         .input-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         input, select { background: #05070a; border: 1px solid #374151; color: #fff; padding: 10px; border-radius: 10px; font-size: 13px; flex: 1; }
-        .add-btn { background: var(--gold); color: #000; border: none; border-radius: 10px; font-weight: bold; padding: 10px 20px; cursor: pointer;}
-        
-        .history-list { margin-top: 12px; max-height: 120px; overflow-y: auto; font-size: 11px; }
+        .add-btn { background: var(--gold); color: #000; border: none; border-radius: 10px; font-weight: bold; padding: 10px; cursor: pointer; flex: 1;}
+        .history-list { margin-top: 12px; max-height: 100px; overflow-y: auto; font-size: 11px; }
         .history-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #1f2937; }
-        .chart-container { height: 200px; width: 100%; }
-        .sync-btn { width:100%; margin-top: 10px; background: #1e293b; color: var(--gold); border: 1px dashed var(--gold); padding: 8px; border-radius: 10px; font-size: 11px; }
+        .sync-btn { width:100%; margin-top: 10px; background: transparent; color: var(--gold); border: 1px dashed var(--gold); padding: 8px; border-radius: 10px; font-size: 11px; cursor: pointer; }
+
+        /* 6. 圖表 */
+        .chart-container { height: 180px; width: 100%; }
+        input[type="range"] { width: 100%; accent-color: var(--gold); margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -52,6 +69,12 @@
         <div class="p-box"><div class="p-label">VIX</div><div id="vix-p" class="profit">17.34</div></div>
     </div>
 
+    <div class="bss-container">
+        <div style="font-size:10px; color:var(--gold); font-weight: bold; letter-spacing: 1px;">MARKET BSS SIGNAL</div>
+        <div id="bss-signal" class="bss-signal">分析中...</div>
+        <div id="bss-logic" class="bss-logic">同步 2026/05/08 即時報價中</div>
+    </div>
+
     <div class="user-tab">
         <button id="btnJR" class="tab-btn active-jr" onclick="switchUser('jr')">家瑞</button>
         <button id="btnZY" class="tab-btn" onclick="switchUser('zy')">芷吟</button>
@@ -59,9 +82,9 @@
     </div>
 
     <div class="main-card">
-        <p style="font-size:10px; color:var(--gold); font-weight: bold; letter-spacing: 2px;">LIVE ASSET VALUE (TWD)</p>
+        <p style="font-size:10px; color:var(--gold); font-weight: bold;">LIVE ASSET VALUE (TWD)</p>
         <h1 id="totalValue">NT$ 0</h1>
-        <div style="display:flex; justify-content: space-around; margin-top:15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top:15px;">
+        <div class="stats-row">
             <div><p style="font-size:9px; color:#94a3b8">累積總本金</p><p id="totalCost" style="font-size:14px; font-weight:bold;">0</p></div>
             <div><p style="font-size:9px; color:#94a3b8">當前總損益</p><p id="totalProfit" style="font-size:14px; font-weight:bold;">+0</p></div>
         </div>
@@ -70,22 +93,19 @@
     <div class="card" id="recordSection">
         <p style="font-size:13px; font-weight:bold; color:var(--gold);">➕ 存入實時投資紀錄</p>
         <div class="input-group">
-            <input type="date" id="logDate">
+            <input type="date" id="logDate" style="width: 100%;">
             <select id="logTicker"><option value="VOO">買 VOO</option><option value="QQQ">買 QQQ</option></select>
             <input type="number" id="logAmount" placeholder="台幣金額">
             <button class="add-btn" onclick="addRecord()">存入</button>
         </div>
         <div class="history-list" id="historyList"></div>
-        <button class="sync-btn" onclick="shareToPartner()">🔗 複製雲端同步網址給對方</button>
+        <button class="sync-btn" onclick="shareToPartner()">🔗 傳送同步連結給對方</button>
     </div>
 
     <div class="card">
-        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight: bold; margin-bottom: 5px;">
-            <span>未來每月計畫：<span id="planVal" style="color:var(--gold)">26,000</span></span>
+        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight: bold;">
+            <span>未來年化：<span id="rateLabel" style="color:var(--gold)">--</span></span>
             <span>複利目標：<span id="yearVal" style="color:var(--gold)">10</span> 年</span>
-        </div>
-        <div style="font-size:10px; color:#94a3b8; margin-bottom:10px;">
-            歷史年化參考：VOO 9.8% | QQQ 14.2%
         </div>
         <input type="range" id="yearSlider" min="1" max="40" value="10" oninput="updateUI()">
         <div class="chart-container"><canvas id="vChart"></canvas></div>
@@ -97,9 +117,9 @@
     let myChart = null;
     let prices = { voo: 677.64, qqq: 705.22, sso: 65.99, vix: 17.34 };
     const basePrices = { voo: 677.64, qqq: 705.22 };
-    
-    // --- 歷史年化報酬率設定 ---
-    const HISTORICAL_RATES = { VOO: 0.098, QQQ: 0.142 };
+    const HIST_VOO = 0.098, HIST_QQQ = 0.142;
+
+    document.getElementById('logDate').valueAsDate = new Date();
 
     async function syncMarket() {
         try {
@@ -109,7 +129,24 @@
                 data.forEach(item => { prices[item.symbol.replace('^','').toLowerCase()] = item.price; });
             }
         } catch(e) {}
+        updateBSS();
         updateUI();
+    }
+
+    function updateBSS() {
+        const sig = document.getElementById('bss-signal'), log = document.getElementById('bss-logic');
+        const v = prices.vix;
+        if (v >= 40) {
+            sig.innerText = "🚨 十年難得一遇 All In"; sig.style.color = "#FF4444";
+            log.innerText = "市場極度恐慌，這是歷史性的財富翻倍點，建議全力加碼。";
+        } else if (v >= 26) {
+            sig.innerText = "⚖️ 可分批逢低買進"; sig.style.color = "#10B981";
+            log.innerText = "市場出現修正，估值顯現，可執行分批買進計畫。";
+        } else {
+            sig.innerText = "🔥 市場狂熱中：持續定額"; sig.style.color = "#94A3B8";
+            log.innerText = "目前處於牛市擴張期，維持原有定期定額節奏即可。";
+        }
+        ['voo','qqq','sso','vix'].forEach(s => { document.getElementById(`${s}-p`).innerText = prices[s].toFixed(2); });
     }
 
     function switchUser(u) {
@@ -120,50 +157,33 @@
         updateUI();
     }
 
-    function getHistory(user) {
-        const data = localStorage.getItem('vault_v6_' + user);
-        return data ? JSON.parse(data) : [];
-    }
+    function getHistory(u) { return JSON.parse(localStorage.getItem('vault_v7_' + u) || '[]'); }
 
     function addRecord() {
-        const date = document.getElementById('logDate').value;
-        const ticker = document.getElementById('logTicker').value;
-        const amount = parseFloat(document.getElementById('logAmount').value);
-        if (!date || !amount) return;
-        const history = getHistory(currentUser);
-        history.push({ id: Date.now(), date, ticker, amount });
-        localStorage.setItem('vault_v6_' + currentUser, JSON.stringify(history));
-        document.getElementById('logAmount').value = '';
-        updateUI();
+        const d = document.getElementById('logDate').value, t = document.getElementById('logTicker').value, a = parseFloat(document.getElementById('logAmount').value);
+        if (!d || !a) return;
+        const h = getHistory(currentUser); h.push({ id: Date.now(), date: d, ticker: t, amount: a });
+        localStorage.setItem('vault_v7_' + currentUser, JSON.stringify(h));
+        document.getElementById('logAmount').value = ''; updateUI();
     }
 
     function deleteRecord(id) {
-        let history = getHistory(currentUser);
-        history = history.filter(item => item.id !== id);
-        localStorage.setItem('vault_v6_' + currentUser, JSON.stringify(history));
+        const h = getHistory(currentUser).filter(i => i.id !== id);
+        localStorage.setItem('vault_v7_' + currentUser, JSON.stringify(h));
         updateUI();
     }
 
     function updateUI() {
         const jrH = getHistory('jr'), zyH = getHistory('zy');
         const history = currentUser === 'jr' ? jrH : (currentUser === 'zy' ? zyH : [...jrH, ...zyH]);
-
+        const listEl = document.getElementById('historyList'); listEl.innerHTML = '';
         let totalCost = 0, currentMV = 0;
-        let vooTotal = 0, qqqTotal = 0;
-
-        const listEl = document.getElementById('historyList');
-        listEl.innerHTML = '';
 
         history.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(item => {
             totalCost += item.amount;
-            const change = prices[item.ticker.toLowerCase()] / basePrices[item.ticker.toLowerCase()];
-            currentMV += item.amount * change;
-            if (item.ticker === 'VOO') vooTotal += item.amount;
-            else qqqTotal += item.amount;
-
+            currentMV += item.amount * (prices[item.ticker.toLowerCase()] / basePrices[item.ticker.toLowerCase()]);
             if(currentUser !== 'all') {
-                const div = document.createElement('div');
-                div.className = 'history-item';
+                const div = document.createElement('div'); div.className = 'history-item';
                 div.innerHTML = `<span>${item.date} [${item.ticker}]</span><b>$${item.amount.toLocaleString()}</b><button onclick="deleteRecord(${item.id})" style="color:#ef4444; border:none; background:none; cursor:pointer;">×</button>`;
                 listEl.appendChild(div);
             }
@@ -171,73 +191,41 @@
 
         document.getElementById('totalValue').innerText = "NT$ " + Math.round(currentMV).toLocaleString();
         document.getElementById('totalCost').innerText = totalCost.toLocaleString();
-        const profit = currentMV - totalCost;
-        document.getElementById('totalProfit').innerText = (profit>=0?"+":"") + Math.round(profit).toLocaleString();
-        document.getElementById('totalProfit').style.color = profit>=0 ? "var(--green)" : "#ef4444";
+        const p = currentMV - totalCost;
+        document.getElementById('totalProfit').innerText = (p>=0?"+":"") + Math.round(p).toLocaleString();
+        document.getElementById('totalProfit').style.color = p>=0 ? "var(--green)" : "#ef4444";
 
-        // 動態計算年化權重
-        let weightedRate = 0;
-        if (currentUser === 'jr') {
-            weightedRate = (14000/20000)*HISTORICAL_RATES.VOO + (6000/20000)*HISTORICAL_RATES.QQQ;
-        } else if (currentUser === 'zy') {
-            weightedRate = HISTORICAL_RATES.VOO; // 芷吟是 6000 買 VOO
-        } else {
-            weightedRate = (20000/26000)*((14000/20000)*HISTORICAL_RATES.VOO + (6000/20000)*HISTORICAL_RATES.QQQ) + (6000/26000)*HISTORICAL_RATES.VOO;
-        }
-
-        renderChart(currentMV, weightedRate, currentUser === 'all' ? 26000 : (currentUser === 'jr' ? 20000 : 6000));
+        let rate = (currentUser === 'jr') ? (14000/20000*HIST_VOO + 6000/20000*HIST_QQQ) : (currentUser === 'zy' ? HIST_VOO : (20000/26000*(14000/20000*HIST_VOO+6000/20000*HIST_QQQ) + 6000/26000*HIST_VOO));
+        document.getElementById('rateLabel').innerText = (rate*100).toFixed(1) + "%";
+        renderChart(currentMV, rate, currentUser === 'all' ? 26000 : (currentUser === 'jr' ? 20000 : 6000));
     }
 
     function renderChart(mv, rate, monthly) {
         const years = parseInt(document.getElementById('yearSlider').value);
         document.getElementById('yearVal').innerText = years;
-        document.getElementById('planVal').innerText = monthly.toLocaleString();
-
         let labels = [], data = [], cost = [];
         for (let i = 0; i <= years; i++) {
             labels.push(i + 'y');
             let fv = mv * Math.pow(1 + rate, i);
-            let r = rate/12, n = i*12;
-            if(n > 0) fv += monthly * ((Math.pow(1+r, n)-1)/r);
-            data.push(Math.round(fv));
-            cost.push(Math.round(mv + monthly * 12 * i));
+            let r = rate/12, n = i*12; if(n > 0) fv += monthly * ((Math.pow(1+r, n)-1)/r);
+            data.push(Math.round(fv)); cost.push(Math.round(mv + monthly * 12 * i));
         }
-
         const ctx = document.getElementById('vChart').getContext('2d');
         if (myChart) myChart.destroy();
         myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: '市值', data: data, borderColor: '#D4AF37', borderWidth: 3, pointRadius: 0, fill: true, backgroundColor: 'rgba(212,175,55,0.1)', tension: 0.4
-                }, {
-                    label: '成本', data: cost, borderColor: 'rgba(255,255,255,0.1)', borderDash: [5,5], pointRadius: 0
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, 
-            scales: { y: { ticks: { color: '#64748b', callback: v => (v/10000)+'萬' }, grid: { color: 'rgba(255,255,255,0.03)' } }, x: { ticks: { color: '#64748b' } } } }
+            type: 'line', data: { labels, datasets: [{ label: '市值', data, borderColor: '#D4AF37', borderWidth: 3, pointRadius: 0, fill: true, backgroundColor: 'rgba(212,175,55,0.1)', tension: 0.4 }, { label: '成本', data: cost, borderColor: 'rgba(255,255,255,0.1)', borderDash: [5,5], pointRadius: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#64748b', callback: v => (v/10000)+'萬' }, grid: { color: 'rgba(255,255,255,0.03)' } }, x: { ticks: { color: '#64748b' } } } }
         });
     }
 
     function shareToPartner() {
-        const payload = { jr: getHistory('jr'), zy: getHistory('zy') };
-        const syncUrl = window.location.origin + window.location.pathname + "?data=" + btoa(encodeURIComponent(JSON.stringify(payload)));
-        navigator.clipboard.writeText(syncUrl).then(() => { alert("同步連結已複製！傳給對方點擊即可。"); });
+        const s = btoa(encodeURIComponent(JSON.stringify({ jr: getHistory('jr'), zy: getHistory('zy') })));
+        navigator.clipboard.writeText(window.location.origin + window.location.pathname + "?data=" + s).then(() => { alert("同步連結已複製！傳給對方點擊即可。"); });
     }
 
     window.onload = () => {
-        const params = new URLSearchParams(window.location.search);
-        const data = params.get('data');
-        if (data) {
-            try {
-                const d = JSON.parse(decodeURIComponent(atob(data)));
-                if (d.jr) localStorage.setItem('vault_v6_jr', JSON.stringify(d.jr));
-                if (d.zy) localStorage.setItem('vault_v6_zy', JSON.stringify(d.zy));
-                window.history.replaceState({}, document.title, window.location.pathname);
-                alert("數據同步成功！");
-            } catch(e) {}
-        }
+        const params = new URLSearchParams(window.location.search); const d = params.get('data');
+        if (d) { try { const p = JSON.parse(decodeURIComponent(atob(d))); if (p.jr) localStorage.setItem('vault_v7_jr', JSON.stringify(p.jr)); if (p.zy) localStorage.setItem('vault_v7_zy', JSON.stringify(p.zy)); window.history.replaceState({}, document.title, window.location.pathname); alert("數據同步成功！"); } catch(e) {} }
         syncMarket();
     };
 </script>
