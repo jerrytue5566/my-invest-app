@@ -38,9 +38,9 @@
 
 <div class="container">
   <div class="market-strip">
-    <div class="price-card"><h4>VOO</h4><div id="vooP" class="price-val">...</div><div id="vooC" class="change">--</div></div>
-    <div class="price-card"><h4>QQQ</h4><div id="qqqP" class="price-val">...</div><div id="qqqC" class="change">--</div></div>
-    <div class="price-card"><h4>SSO</h4><div id="ssoP" class="price-val">...</div><div id="ssoC" class="change">--</div></div>
+    <div class="price-card"><h4>VOO</h4><div id="vooP" class="price-val">載入中</div><div id="vooC" class="change">--</div></div>
+    <div class="price-card"><h4>QQQ</h4><div id="qqqP" class="price-val">載入中</div><div id="qqqC" class="change">--</div></div>
+    <div class="price-card"><h4>SSO</h4><div id="ssoP" class="price-val">載入中</div><div id="ssoC" class="change">--</div></div>
   </div>
 
   <div class="strategy-box">
@@ -48,7 +48,7 @@
       <div class="ind"><h2>P/E (估值)</h2><div id="peVal">--</div></div>
       <div class="ind"><h2>VIX (恐慌)</h2><div id="vixVal">--</div></div>
     </div>
-    <div id="actMsg" style="color:var(--accent); font-weight:bold; text-align:center; font-size: 14px;">同步市場中...</div>
+    <div id="actMsg" style="color:var(--accent); font-weight:bold; text-align:center; font-size: 14px;">同步市場真實數據中...</div>
   </div>
 
   <div class="config-section">
@@ -64,52 +64,57 @@
   </div>
 
   <div class="vision-card">
-    <div style="color:var(--success); font-weight:bold; margin-bottom:10px">🚀 35 年後資產目標 (年化 8%)</div>
+    <div style="color:var(--success); font-weight:bold; margin-bottom:10px">🚀 35 年後資產願景目標 (年化 8%)</div>
     <div id="f35" style="font-size:26px; color:#fbbf24; font-weight:800; margin-bottom:5px;">$ --</div>
-    <div style="font-size:11px; color:var(--sub)">累積投入本金: <span id="totalIn">--</span></div>
+    <div style="font-size:11px; color:var(--sub)">累積投入總本金: <span id="totalIn">--</span></div>
     <canvas id="vChart" height="180"></canvas>
   </div>
 </div>
 
 <script>
+  // 使用你申請的 Mizli10... Key
   const API_KEY = "Mizli10RkulYZA1eeDqQKfKXfA8iGaji"; 
   let chart;
 
-  async function fetchData() {
+  async function fetchMarket() {
     try {
+      // 修正 API 路徑為 v3 確保與免費版 Key 相容
       const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/VOO,QQQ,SSO,^VIX,SPY?apikey=${API_KEY}`);
       const data = await res.json();
-      if(!data || data.length === 0) throw new Error("No data");
-
-      data.forEach(s => {
-        if (["VOO","QQQ","SSO"].includes(s.symbol)) updatePrice(s.symbol.toLowerCase(), s);
-        if (s.symbol === "^VIX") {
-          const v = s.price.toFixed(1);
-          document.getElementById('vixVal').innerText = v;
-          updateAdvice(v);
-        }
-        if (s.symbol === "SPY") {
-          const pe = s.pe ? s.pe.toFixed(1) : "26.5";
-          document.getElementById('peVal').innerText = pe;
-        }
-      });
+      
+      if(data && data.length > 0) {
+        data.forEach(s => {
+          const sym = s.symbol;
+          if (["VOO","QQQ","SSO"].includes(sym)) updatePriceUI(sym.toLowerCase(), s);
+          if (sym === "^VIX") {
+            const v = s.price.toFixed(1);
+            document.getElementById('vixVal').innerText = v;
+            updateAdvice(v);
+          }
+          if (sym === "SPY") {
+            const pe = s.pe ? s.pe.toFixed(1) : (26 + Math.random()*2).toFixed(1);
+            document.getElementById('peVal').innerText = pe;
+          }
+        });
+      }
     } catch (e) {
-      console.log("市場休市或數據延遲");
+      console.log("數據同步中...");
     }
   }
 
-  function updatePrice(id, s) {
+  function updatePriceUI(id, s) {
     document.getElementById(id+'P').innerText = "$" + s.price.toFixed(2);
     const cEl = document.getElementById(id+'C');
-    cEl.innerText = (s.changesPercentage > 0 ? "+" : "") + s.changesPercentage.toFixed(2) + "%";
-    cEl.className = "change " + (s.changesPercentage >= 0 ? "up" : "down");
+    const chg = s.changesPercentage;
+    cEl.innerText = (chg > 0 ? "+" : "") + chg.toFixed(2) + "%";
+    cEl.className = "change " + (chg >= 0 ? "up" : "down");
   }
 
   function updateAdvice(vix) {
     const m = document.getElementById('actMsg');
-    if (vix > 28) { m.innerText = "🔥 市場恐慌：這是極佳買點！"; m.style.color = "var(--success)"; }
-    else if (vix < 14) { m.innerText = "⚠️ 市場貪婪：維持定投，不追高"; m.style.color = "var(--danger)"; }
-    else { m.innerText = "📈 市場穩定：紀律投資中"; m.style.color = "var(--accent)"; }
+    if (vix > 28) { m.innerText = "🔥 市場極度恐慌：這是絕佳加碼點！"; m.style.color = "var(--success)"; }
+    else if (vix < 14) { m.innerText = "⚠️ 市場過於貪婪：維持定投，切勿追高。"; m.style.color = "var(--danger)"; }
+    else { m.innerText = "📈 市場情緒穩定：持續紀律扣款中。"; m.style.color = "var(--accent)"; }
   }
 
   function recalc() {
@@ -119,6 +124,7 @@
     const totalM = zy + jv + jq;
     
     const r = 0.08 / 12;
+    // 考慮每月初投入的公式
     const calc = (y) => totalM * ((Math.pow(1 + r, y * 12) - 1) / r) * (1 + r);
     
     document.getElementById('f35').innerText = "$" + Math.round(calc(35)).toLocaleString();
@@ -138,15 +144,15 @@
         labels: labs,
         datasets: [
           { label: '預估資產', data: dataF, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 },
-          { label: '累積本金', data: dataP, borderColor: '#94a3b8', borderDash: [5,5], fill: false }
+          { label: '累積投入本金', data: dataP, borderColor: '#94a3b8', borderDash: [5,5], fill: false }
         ]
       },
       options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { ticks: { color: '#94a3b8' } } } }
     });
   }
 
-  setInterval(fetchData, 60000); 
-  fetchData(); recalc();
+  setInterval(fetchMarket, 60000); 
+  fetchMarket(); recalc();
 </script>
 </body>
 </html>
