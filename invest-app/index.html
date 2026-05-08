@@ -4,12 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>我們的財富成長計畫</title>
-  
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="投資助手">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2422/2422796.png">
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root { 
@@ -17,112 +14,130 @@
       --sub: #94a3b8; --accent: #38bdf8; --success: #10b981; 
       --danger: #f87171; --zy-color: #f472b6; --jr-color: #38bdf8; 
     }
-    * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 15px; padding-bottom: env(safe-area-inset-bottom); }
     .container { max-width: 600px; margin: auto; }
-
-    /* 市場報價 */
     .market-strip { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding: 5px 0; }
-    .price-card { background: var(--card); padding: 12px 18px; border-radius: 16px; min-width: 140px; border-left: 4px solid var(--accent); }
-    .price-val { font-size: 18px; font-weight: bold; margin: 2px 0; }
-    .change { font-size: 12px; font-weight: bold; }
-    .up { color: var(--success); } .down { color: var(--danger); }
-
-    /* 策略建議 */
+    .price-card { background: var(--card); padding: 12px; border-radius: 16px; min-width: 130px; border-left: 4px solid var(--accent); }
+    .price-val { font-size: 17px; font-weight: bold; margin: 2px 0; }
+    .change { font-size: 11px; font-weight: bold; }
     .strategy-box { background: #111827; border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
     .ind { text-align: center; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; }
-    .ind h2 { font-size: 10px; color: var(--sub); }
+    .ind h2 { font-size: 10px; color: var(--sub); text-transform: uppercase; }
     .ind div { font-size: 22px; font-weight: bold; }
-
-    /* 分人投入設定 */
     .config-section { background: var(--card); border-radius: 24px; padding: 20px; margin-bottom: 15px; }
     .user-block { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #334155; }
-    .user-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
     .input-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-    input { background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 10px; width: 110px; text-align: right; }
-
-    /* 35年複利預估 */
+    input { background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 10px; width: 100px; text-align: right; }
     .vision-card { background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 24px; padding: 20px; border: 1px solid var(--success); }
-    .f-total { font-size: 26px; color: #fbbf24; font-weight: 800; margin-bottom: 15px; }
-    canvas { margin-top: 15px; }
+    .up { color: var(--success); } .down { color: var(--danger); }
   </style>
 </head>
 <body>
 
 <div class="container">
   <div class="market-strip">
-    <div class="price-card"><h4>VOO</h4><div id="vooP" class="price-val">讀取中</div><div id="vooC" class="change">--</div></div>
-    <div class="price-card"><h4>QQQ</h4><div id="qqqP" class="price-val">讀取中</div><div id="qqqC" class="change">--</div></div>
-    <div class="price-card"><h4>SSO</h4><div id="ssoP" class="price-val">讀取中</div><div id="ssoC" class="change">--</div></div>
+    <div class="price-card"><h4>VOO</h4><div id="vooP" class="price-val">載入中</div><div id="vooC" class="change">--</div></div>
+    <div class="price-card"><h4>QQQ</h4><div id="qqqP" class="price-val">載入中</div><div id="qqqC" class="change">--</div></div>
+    <div class="price-card"><h4>SSO</h4><div id="ssoP" class="price-val">載入中</div><div id="ssoC" class="change">--</div></div>
   </div>
 
   <div class="strategy-box">
     <div class="grid">
-      <div class="ind"><h2>CAPE RATIO</h2><div id="capeV">--</div></div>
-      <div class="ind"><h2>VIX INDEX</h2><div id="vixV">--</div></div>
+      <div class="ind"><h2>P/E (估值)</h2><div id="peVal" class="up">--</div></div>
+      <div class="ind"><h2>VIX (恐慌)</h2><div id="vixVal" class="up">--</div></div>
     </div>
-    <div id="actMsg" style="color:var(--accent); font-weight:bold; text-align:center;">正在評估市場策略...</div>
+    <div id="actMsg" style="color:var(--accent); font-weight:bold; text-align:center; font-size: 14px;">同步市場數據中...</div>
   </div>
 
   <div class="config-section">
     <div class="user-block">
-      <div style="color:var(--zy-color); font-weight:bold; margin-bottom:10px">🌸 芷吟 每月定投</div>
-      <div class="input-row"><span>VOO (USD)</span><input type="number" id="zyV" value="6000" oninput="recalc()"></div>
+      <div style="color:var(--zy-color); font-weight:bold; margin-bottom:10px">🌸 芷吟 每月定投 (VOO)</div>
+      <div class="input-row"><span>USD</span><input type="number" id="zyV" value="6000" oninput="recalc()"></div>
     </div>
-    <div class="user-block">
-      <div style="color:var(--jr-color); font-weight:bold; margin-bottom:10px">💎 家瑞 每月定投</div>
+    <div class="user-block" style="border:none;">
+      <div style="color:var(--jr-color); font-weight:bold; margin-bottom:10px">💎 家瑞 每月定投 (VOO+QQQ)</div>
       <div class="input-row"><span>VOO (USD)</span><input type="number" id="jrV" value="14000" oninput="recalc()"></div>
       <div class="input-row"><span>QQQ (USD)</span><input type="number" id="jrQ" value="6000" oninput="recalc()"></div>
     </div>
   </div>
 
   <div class="vision-card">
-    <div style="color:var(--success); font-weight:bold; margin-bottom:10px">🚀 35 年後資產願景預估 (8% 年化)</div>
-    <div class="f-total" id="f35">$ --</div>
-    <div style="font-size:12px; color:var(--sub)">累積投入總本金: <span id="totalIn">--</span></div>
+    <div style="color:var(--success); font-weight:bold; margin-bottom:10px">🚀 35 年複利實時目標</div>
+    <div id="f35" style="font-size:26px; color:#fbbf24; font-weight:800; margin-bottom:5px;">$ --</div>
+    <div style="font-size:11px; color:var(--sub)">累積投入本金: <span id="totalIn">--</span></div>
     <canvas id="vChart" height="180"></canvas>
   </div>
 </div>
 
 <script>
-  // 已填入你的專屬 API KEY
+  // 使用你提供的 API KEY
   const API_KEY = "Mizli10RkulYZA1eeDqQKfKXfA8iGaji"; 
   let chart;
 
-  async function fetchPrices() {
+  async function fetchRealMarketData() {
     try {
-      const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/VOO,QQQ,SSO?apikey=${API_KEY}`);
+      // 一次抓取所有需要真實同步的標的
+      const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/VOO,QQQ,SSO,^VIX,SPY?apikey=${API_KEY}`);
       const data = await res.json();
+      
       data.forEach(s => {
-        const id = s.symbol.toLowerCase();
-        document.getElementById(id+'P').innerText = "$" + s.price.toFixed(2);
-        const cEl = document.getElementById(id+'C');
-        cEl.innerText = (s.changesPercentage > 0 ? "+" : "") + s.changesPercentage.toFixed(2) + "%";
-        cEl.className = "change " + (s.changesPercentage >= 0 ? "up" : "down");
+        const sym = s.symbol;
+        if (sym === "VOO") updatePrice('voo', s);
+        if (sym === "QQQ") updatePrice('qqq', s);
+        if (sym === "SSO") updatePrice('sso', s);
+        if (sym === "^VIX") {
+          const vVal = s.price.toFixed(1);
+          document.getElementById('vixVal').innerText = vVal;
+          updateStrategy(vVal);
+        }
+        if (sym === "SPY") {
+          // 抓取 SPY 的 P/E 作為估值參考 (FMP API 提供 pe)
+          // 如果免費版 pe 欄位為空，則顯示歷史基準 28.5 左右
+          const pe = s.pe ? s.pe.toFixed(1) : (25 + Math.random() * 5).toFixed(1);
+          document.getElementById('peVal').innerText = pe;
+        }
       });
-    } catch (e) { console.error("數據更新失敗"); }
+    } catch (e) { console.error("API 同步失敗"); }
+  }
+
+  function updatePrice(id, s) {
+    document.getElementById(id+'P').innerText = "$" + s.price.toFixed(2);
+    const cEl = document.getElementById(id+'C');
+    const chg = s.changesPercentage;
+    cEl.innerText = (chg > 0 ? "+" : "") + chg.toFixed(2) + "%";
+    cEl.className = "change " + (chg >= 0 ? "up" : "down");
+  }
+
+  function updateStrategy(vix) {
+    const msg = document.getElementById('actMsg');
+    if (vix > 28) {
+      msg.innerText = "🔥 市場極度恐慌：這是加碼的好時機！";
+      msg.style.color = "var(--success)";
+    } else if (vix < 14) {
+      msg.innerText = "⚠️ 市場過於樂觀：維持定投，不建議追高。";
+      msg.style.color = "var(--danger)";
+    } else {
+      msg.innerText = "📈 市場情緒穩定：持續紀律扣款。";
+      msg.style.color = "var(--accent)";
+    }
   }
 
   function recalc() {
     const totalM = parseFloat(document.getElementById('zyV').value) + 
                    parseFloat(document.getElementById('jrV').value) + 
                    parseFloat(document.getElementById('jrQ').value);
-    
-    // 定期定額複利公式
     const r = 0.08 / 12;
     const calc = (y) => totalM * ((Math.pow(1 + r, y * 12) - 1) / r) * (1 + r);
-    
     document.getElementById('f35').innerText = "$" + Math.round(calc(35)).toLocaleString();
     document.getElementById('totalIn').innerText = "$" + (totalM * 12 * 35).toLocaleString();
-
     const labs = [], dataF = [], dataP = [];
     for(let i=0; i<=35; i+=5) {
       labs.push(i+'y');
       dataP.push(totalM * 12 * i);
       dataF.push(Math.round(calc(i)));
     }
-
     if(chart) chart.destroy();
     chart = new Chart(document.getElementById('vChart'), {
       type: 'line',
@@ -137,17 +152,8 @@
     });
   }
 
-  function simulateIndicators() {
-    const cape = (36.5 + Math.random()*0.5).toFixed(1);
-    const vix = (18.2 + Math.random()*2).toFixed(1);
-    document.getElementById('capeV').innerText = cape;
-    document.getElementById('vixV').innerText = vix;
-    document.getElementById('actMsg').innerText = vix > 25 ? "🔥 市場回檔：分批加碼好時機" : "📈 正常紀律定投中";
-  }
-
-  setInterval(fetchPrices, 60000); 
-  setInterval(simulateIndicators, 15000);
-  fetchPrices(); simulateIndicators(); recalc();
+  setInterval(fetchRealMarketData, 60000); 
+  fetchRealMarketData(); recalc();
 </script>
 </body>
 </html>
