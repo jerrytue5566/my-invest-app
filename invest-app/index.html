@@ -3,137 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Golden Vault Pro - Realtime Cloud</title>
+    <title>Golden Vault Pro - High Fidelity</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    :root { 
-        /* 重新定義質感灰金配色 */
-        --bg: #1a1a1a;            /* 深岩灰背景 */
-        --card: #242424;          /* 稍淺的卡片灰 */
-        --gold: #D4AF37;          /* 經典香檳金 */
-        --gold-bright: #FFD700;   /* 亮金色 */
-        --text: #e0e0e0;          /* 淺灰色文字，減少視覺疲勞 */
-        --border: #333333;        /* 內部暗邊框 */
-        --zy-pink: #f472b6;       /* 芷吟專屬粉 */
-        --green: #10b981; 
-    }
+    <style>
+        :root { 
+            --bg: #1a1a1a;            /* 深岩灰背景 */
+            --card: #242424;          /* 稍淺卡片灰 */
+            --gold: #D4AF37;          /* 家族黃 (金) */
+            --jr-blue: #3b82f6;       /* 家瑞藍 */
+            --zy-pink: #f472b6;       /* 芷吟粉 */
+            --text: #e0e0e0; 
+            --green: #10b981; 
+        }
 
-    * { margin:0; padding:0; box-sizing:border-box; font-family: "Inter", "Microsoft JhengHei", sans-serif; }
-    
-    body { 
-        background: var(--bg); 
-        color: var(--text); 
-        padding: 15px; 
-        background-image: radial-gradient(circle at 50% 50%, #2a2a2a 0%, #1a1a1a 100%); /* 增加背景漸層感 */
-    }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: "Inter", "Microsoft JhengHei", sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 15px; transition: background 0.3s; }
+        .container { max-width:480px; margin:auto; }
 
-    .container { max-width:480px; margin:auto; }
+        /* 頂部四格報價：確保 Grid 橫向排版 */
+        .price-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
+        .p-box { 
+            background: var(--card); padding: 12px 2px; border-radius: 12px; text-align: center; 
+            border: 1px solid var(--gold); box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+        }
+        .p-label { font-size: 10px; color: var(--gold); font-weight: 800; }
+        .profit { color: #fff; font-weight: bold; font-size: 12px; }
 
-    /* 報價區塊：金色細邊框 */
-    .p-box { 
-        background: var(--card); 
-        padding: 12px 2px; 
-        border-radius: 12px; 
-        text-align: center; 
-        border: 1px solid var(--gold); /* 核心金色邊框 */
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    }
+        /* BSS 面板 */
+        .bss-container { background: var(--card); border: 1.5px solid var(--gold); border-radius: 20px; padding: 15px; margin-bottom: 15px; text-align: center; }
+        .bss-signal { font-size: 16px; font-weight: 900; color: #FFD700; }
 
-    /* BSS 面板：加強金色發光感 */
-    .bss-container { 
-        background: var(--card); 
-        border: 2px solid var(--gold); 
-        border-radius: 20px; 
-        padding: 15px; 
-        margin-bottom: 15px; 
-        text-align: center;
-        box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); 
-    }
+        /* 帳戶切換按鈕：藍/粉/黃 三色 */
+        .user-tab { display: flex; gap: 6px; margin-bottom: 15px; background: #000; padding: 4px; border-radius: 16px; }
+        .tab-btn { flex: 1; padding: 10px; border-radius: 12px; border: none; color: #64748b; font-size: 12px; font-weight: bold; background: transparent; cursor: pointer; transition: 0.3s; }
+        .tab-btn.active-jr { background: var(--jr-blue); color: #fff; }
+        .tab-btn.active-zy { background: var(--zy-pink); color: #fff; }
+        .tab-btn.active-all { background: var(--gold); color: #000; }
 
-    /* 主市值卡片：精品飯店風格 */
-    .main-card { 
-        background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-        border: 1.5px solid var(--gold); 
-        border-radius: 28px; 
-        padding: 25px 20px; 
-        text-align: center; 
-        margin-bottom: 15px;
-        box-shadow: 5px 5px 15px #111, -2px -2px 10px #333;
-    }
+        /* 主市值卡片：動態邊框 */
+        .main-card { 
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            border: 2px solid var(--gold); 
+            border-radius: 28px; padding: 25px 20px; text-align: center; margin-bottom: 15px;
+            transition: all 0.4s ease;
+        }
+        .border-jr { border-color: var(--jr-blue) !important; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
+        .border-zy { border-color: var(--zy-pink) !important; box-shadow: 0 0 15px rgba(244, 114, 182, 0.2); }
+        .border-all { border-color: var(--gold) !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.2); }
 
-    #totalValue { 
-        font-size: 34px; 
-        font-weight: 900; 
-        color: var(--gold-bright); /* 數字用亮金色 */
-        text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
-        margin-bottom: 10px; 
-    }
+        #totalValue { font-size: 34px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.1); }
 
-    /* 帳戶切換鈕：灰色基底 */
-    .user-tab { 
-        display: flex; 
-        gap: 6px; 
-        margin-bottom: 15px; 
-        background: #000; 
-        padding: 4px; 
-        border-radius: 16px; 
-    }
+        /* 輸入區與紀錄區 */
+        .card { background: var(--card); border-radius: 24px; padding: 20px; margin-bottom: 15px; border: 1px solid #333; }
+        .input-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        input, select { background: #111; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 10px; flex: 1; outline: none; }
+        
+        /* 存入按鈕顏色連動 */
+        .add-btn { color: #fff; border: none; border-radius: 10px; font-weight: bold; padding: 10px; cursor: pointer; flex: 1; transition: 0.3s; }
+        .bg-jr { background: var(--jr-blue); }
+        .bg-zy { background: var(--zy-pink); }
+        .bg-all { background: var(--gold); color: #000; }
 
-    .tab-btn { 
-        flex: 1; 
-        padding: 10px; 
-        border-radius: 12px; 
-        border: none; 
-        color: #888; 
-        font-size: 12px; 
-        font-weight: bold; 
-        background: transparent; 
-        cursor: pointer; 
-    }
+        .history-list { margin-top: 12px; font-size: 11px; max-height: 150px; overflow-y: auto; }
+        .history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; }
 
-    .tab-btn.active-jr { background: var(--gold); color: #000; }
-    .tab-btn.active-zy { background: var(--zy-pink); color: #fff; }
-
-    /* 輸入區與紀錄區：深灰質感 */
-    .card { 
-        background: var(--card); 
-        border-radius: 24px; 
-        padding: 20px; 
-        margin-bottom: 15px; 
-        border: 1px solid #333; 
-    }
-
-    input, select { 
-        background: #111; 
-        border: 1px solid var(--gold); /* 輸入框也配金色邊框 */
-        color: #fff; 
-        padding: 10px; 
-        border-radius: 10px; 
-    }
-
-    .add-btn { 
-        background: linear-gradient(to bottom, var(--gold-bright), var(--gold));
-        color: #000; 
-        border: none; 
-        border-radius: 10px; 
-        font-weight: bold; 
-        padding: 10px;
-        cursor: pointer;
-    }
-
-    /* 圖表區 */
-    .chart-container { 
-        background: rgba(0,0,0,0.2);
-        border-radius: 15px;
-        padding: 10px;
-    }
-</style>
+        .refresh-btn { background: transparent; border: none; color: var(--gold); cursor: pointer; font-size: 14px; margin-left: 5px; }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; color: var(--gold); flex-direction: column; gap: 10px; }
+        
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 </head>
 <body>
 
 <div id="loading" class="loading-overlay">
     <div style="width: 30px; height: 30px; border: 3px solid var(--gold); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-    <span>同步 Google 官方報價中...</span>
+    <span>同步數據中...</span>
 </div>
 
 <div class="container">
@@ -146,40 +90,39 @@
 
     <div class="bss-container">
         <div id="bss-signal" class="bss-signal">連線中...</div>
-        <div id="bss-logic" style="font-size: 10px; color: #94a3b8; margin-top:5px;">正在對接 Google Finance 即時行情</div>
+        <div id="bss-logic" style="font-size: 10px; color: #94a3b8; margin-top:5px;">Google Finance 即時監測中</div>
     </div>
 
-    <!-- [保留原本帳戶切換、市值看板、記帳功能、圖表區塊，內容同前...] -->
     <div class="user-tab">
         <button id="btnJR" class="tab-btn active-jr" onclick="switchUser('jr')">家瑞</button>
         <button id="btnZY" class="tab-btn" onclick="switchUser('zy')">芷吟</button>
         <button id="btnALL" class="tab-btn" onclick="switchUser('all')">家庭總額</button>
     </div>
 
-    <div class="main-card">
-        <p style="font-size:10px; color:var(--gold); font-weight: bold; letter-spacing: 2px;">LIVE FAMILY ASSETS</p>
+    <div class="main-card border-jr">
+        <p style="font-size:10px; color:var(--gold); font-weight: bold; letter-spacing: 2px;">LIVE ASSETS</p>
         <h1 id="totalValue">NT$ 0</h1>
         <div style="display:flex; justify-content: space-around; margin-top:15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top:15px;">
-            <div><p style="font-size:9px; color:#94a3b8">累積總本金</p><p id="totalCost" style="font-size:14px; font-weight:bold;">0</p></div>
-            <div><p style="font-size:9px; color:#94a3b8">當前總損益</p><p id="totalProfit" style="font-size:14px; font-weight:bold;">+0</p></div>
+            <div><p style="font-size:9px; color:#94a3b8">累積本金</p><p id="totalCost" style="font-size:14px; font-weight:bold;">0</p></div>
+            <div><p style="font-size:9px; color:#94a3b8">當前損益</p><p id="totalProfit" style="font-size:14px; font-weight:bold;">+0</p></div>
         </div>
     </div>
 
     <div class="card" id="recordSection">
-        <p style="font-size:13px; font-weight:bold; color:var(--gold);">➕ 雲端存入紀錄</p>
+        <p style="font-size:13px; font-weight:bold; color:var(--gold);">➕ 雲端存入</p>
         <div class="input-group">
             <input type="date" id="logDate" style="width: 100%;">
-            <select id="logTicker" style="flex: 1;"><option value="VOO">買 VOO</option><option value="QQQ">買 QQQ</option></select>
-            <input type="number" id="logAmount" placeholder="台幣金額" style="flex: 2;">
-            <button class="add-btn" onclick="addRecord()">存入</button>
+            <select id="logTicker"><option value="VOO">VOO</option><option value="QQQ">QQQ</option></select>
+            <input type="number" id="logAmount" placeholder="台幣金額">
+            <button class="add-btn bg-jr" onclick="addRecord()">存入</button>
         </div>
         <div class="history-list" id="historyList"></div>
     </div>
 
     <div class="card">
-        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight: bold; margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight: bold;">
             <span>年化預期：<span id="rateLabel" style="color:var(--gold)">--</span></span>
-            <span>複利目標：<span id="yearVal" style="color:var(--gold)">10</span> 年</span>
+            <span>目標：<span id="yearVal" style="color:var(--gold)">10</span> 年</span>
         </div>
         <input type="range" id="yearSlider" min="1" max="40" value="10" oninput="updateUI()">
         <div class="chart-container"><canvas id="vChart"></canvas></div>
@@ -191,7 +134,7 @@
     let currentUser = 'jr';
     let myChart = null;
     let prices = { voo: 0, qqq: 0, sso: 0, vix: 0 };
-    const basePrices = { voo: 677.64, qqq: 705.22 }; // 2026/05/08 基準價
+    const basePrices = { voo: 677.64, qqq: 705.22 };
     let cloudData = [];
 
     document.getElementById('logDate').valueAsDate = new Date();
@@ -201,24 +144,13 @@
         try {
             const res = await fetch(CLOUD_API);
             const response = await res.json();
-            
-            // 更新即時價格
-            if (response.livePrices) {
-                prices = response.livePrices;
-                updateBSS();
-            }
-            
-            // 更新投資紀錄
-            if (response.logs) {
-                cloudData = response.logs;
-            }
-            
+            if (response.livePrices) { prices = response.livePrices; updateBSS(); }
+            if (response.logs) { cloudData = response.logs; }
             updateUI();
-        } catch (e) { console.error("Cloud Sync Failed", e); }
+        } catch (e) { console.error("Sync Failed", e); }
         document.getElementById('loading').style.display = 'none';
     }
 
-    // [保留 addRecord, switchUser, renderChart 等邏輯，同前版本...]
     async function addRecord() {
         const date = document.getElementById('logDate').value;
         const ticker = document.getElementById('logTicker').value;
@@ -226,25 +158,10 @@
         if (!date || !amount) return;
         document.getElementById('loading').style.display = 'flex';
         try {
-            await fetch(CLOUD_API, {
-                method: "POST", mode: "no-cors",
-                body: JSON.stringify({ date, user: currentUser, ticker, amount })
-            });
+            await fetch(CLOUD_API, { method: "POST", mode: "no-cors", body: JSON.stringify({ date, user: currentUser, ticker, amount }) });
             setTimeout(syncCloud, 1500);
         } catch (e) { alert("寫入失敗"); }
         document.getElementById('logAmount').value = '';
-    }
-
-    function updateBSS() {
-        const sig = document.getElementById('bss-signal'), log = document.getElementById('bss-logic');
-        const v = prices.vix;
-        if (v >= 40) { sig.innerText = "🚨 十年一遇 All In"; sig.style.color = "#FF4444"; log.innerText="Google Finance 顯示目前恐慌情緒極高。"; }
-        else if (v >= 26) { sig.innerText = "⚖️ 分批買進模式"; sig.style.color = "#10B981"; log.innerText="市場出現修正，適合分散佈局。"; }
-        else { sig.innerText = "🔥 正常定期定額"; sig.style.color = "#94A3B8"; log.innerText="目前環境穩定，按原有計畫投資即可。"; }
-        ['voo','qqq','sso','vix'].forEach(s => { 
-            const el = document.getElementById(`${s}-p`);
-            if(el) el.innerText = prices[s].toFixed(2); 
-        });
     }
 
     function switchUser(u) {
@@ -252,7 +169,25 @@
         document.getElementById('btnJR').className = u === 'jr' ? 'tab-btn active-jr' : 'tab-btn';
         document.getElementById('btnZY').className = u === 'zy' ? 'tab-btn active-zy' : 'tab-btn';
         document.getElementById('btnALL').className = u === 'all' ? 'tab-btn active-all' : 'tab-btn';
+        
+        const mainCard = document.querySelector('.main-card');
+        mainCard.classList.remove('border-jr', 'border-zy', 'border-all');
+        mainCard.classList.add(`border-${u}`);
+
+        const addBtn = document.querySelector('.add-btn');
+        addBtn.classList.remove('bg-jr', 'bg-zy', 'bg-all');
+        addBtn.classList.add(`bg-${u}`);
+
         updateUI();
+    }
+
+    function updateBSS() {
+        const sig = document.getElementById('bss-signal');
+        const v = prices.vix;
+        if (v >= 40) { sig.innerText = "🚨 十年一遇 All In"; sig.style.color = "#FF4444"; }
+        else if (v >= 26) { sig.innerText = "⚖️ 分批買進模式"; sig.style.color = "#10B981"; }
+        else { sig.innerText = "🔥 正常定期定額"; sig.style.color = "#D4AF37"; }
+        ['voo','qqq','sso','vix'].forEach(s => { document.getElementById(`${s}-p`).innerText = prices[s].toFixed(2); });
     }
 
     function updateUI() {
@@ -263,10 +198,8 @@
         history.sort((a,b) => new Date(b.Date) - new Date(a.Date)).forEach(item => {
             const amt = parseFloat(item.Amount_TWD);
             totalCost += amt;
-            // 計算損益
             const change = prices[item.Ticker.toLowerCase()] / basePrices[item.Ticker.toLowerCase()];
             currentMV += amt * change;
-            
             if(currentUser !== 'all') {
                 const div = document.createElement('div'); div.className = 'history-item';
                 div.innerHTML = `<span>${new Date(item.Date).toLocaleDateString()} [${item.Ticker}]</span><b>$${amt.toLocaleString()}</b>`;
@@ -281,7 +214,7 @@
         pEl.innerText = (p>=0?"+":"") + Math.round(p).toLocaleString();
         pEl.style.color = p>=0 ? "var(--green)" : "#ef4444";
 
-        const rate = (currentUser === 'jr') ? (14/20*0.098 + 6/20*0.142) : (currentUser === 'zy' ? 0.098 : (20/26*0.111 + 6/26*0.098));
+        const rate = (currentUser === 'jr') ? (14/20*0.111) : (currentUser === 'zy' ? 0.098 : 0.105);
         document.getElementById('rateLabel').innerText = (rate*100).toFixed(1) + "%";
         renderChart(currentMV, rate, currentUser === 'all' ? 26000 : (currentUser === 'jr' ? 20000 : 6000));
     }
@@ -305,12 +238,7 @@
     }
 
     window.onload = syncCloud;
-    // 設定每 5 分鐘自動刷新一次雲端數據
     setInterval(syncCloud, 300000);
 </script>
-
-<style>
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-</style>
 </body>
 </html>
