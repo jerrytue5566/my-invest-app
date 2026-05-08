@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Golden Vault - 5/7 Start Pro</title>
+    <title>Golden Vault Pro - BSS 決策系統</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { 
@@ -14,43 +14,45 @@
         body { background:var(--bg); color:var(--text); padding:15px; }
         .container { max-width:480px; margin:auto; }
 
-        /* 即時報價欄 - 完全同步 Google 財經截圖 */
+        /* 價格看板 */
         .price-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:15px; }
         .p-box { 
-            background: linear-gradient(145deg, #111827, #05070a); 
-            padding: 12px 2px; border-radius: 12px; text-align: center; 
-            border: 1px solid var(--gold); box-shadow: 0 4px 15px rgba(212, 175, 55, 0.1);
+            background: rgba(255, 255, 255, 0.03); padding: 12px 2px; border-radius: 12px; 
+            text-align: center; border: 1px solid var(--gold);
         }
         .p-label { font-size: 10px; color: var(--gold); margin-bottom: 4px; font-weight: 800; }
         .profit { color: #fff; font-weight: bold; font-size: 13px; }
 
-        /* BSS 戰術指示燈 */
-        .signal-card { 
-            padding: 18px; border-radius: 20px; text-align: center; margin-bottom: 15px; 
-            font-weight: 900; font-size: 15px; border: 2px solid var(--gold);
-            transition: all 0.4s ease; letter-spacing: 1px;
+        /* --- BSS 視覺化中央面板 --- */
+        .bss-container {
+            background: linear-gradient(180deg, #1e293b 0%, #111827 100%);
+            border: 2px solid var(--gold);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
         }
+        .bss-title { font-size: 11px; color: var(--gold); letter-spacing: 2px; font-weight: bold; margin-bottom: 8px; }
+        .bss-signal { font-size: 16px; font-weight: 900; margin-bottom: 5px; transition: 0.3s; }
+        .bss-logic { font-size: 10px; color: #94a3b8; line-height: 1.4; }
+        /* ----------------------- */
 
         .user-tab { display: flex; gap: 6px; margin-bottom: 15px; background: #1f2937; padding: 4px; border-radius: 16px; }
-        .tab-btn { flex: 1; padding: 10px; border-radius: 12px; border: none; background: transparent; color: #64748b; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .tab-btn { flex: 1; padding: 10px; border-radius: 12px; border: none; color: #64748b; cursor: pointer; font-size: 12px; font-weight: bold; background: transparent; }
         .tab-btn.active-jr { background: var(--gold); color: #000; }
         .tab-btn.active-zy { background: var(--zy-pink); color: #fff; }
         .tab-btn.active-all { background: linear-gradient(90deg, #B8860B, #FFD700); color: #000; }
 
         .main-card { 
             background: linear-gradient(180deg, #1f2937 0%, #05070a 100%);
-            border: 1px solid var(--gold); border-radius: 30px; padding: 30px 20px; text-align: center; margin-bottom: 15px;
+            border: 1px solid var(--gold); border-radius: 28px; padding: 25px 20px; text-align: center; margin-bottom: 15px;
         }
-        #totalValue { 
-            font-size: 38px; margin: 10px 0; font-weight: 900;
-            background: linear-gradient(to bottom, #fff 40%, var(--gold) 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-
+        #totalValue { font-size: 36px; margin: 8px 0; font-weight: 900; color: #fff; text-shadow: 0 0 10px var(--gold); }
         .card { background:var(--card); border-radius:24px; padding:20px; margin-bottom:15px; border: 1px solid #374151; }
-        input { width: 100%; background: #05070a; border: 1px solid #374151; color: #fff; padding: 10px; border-radius: 12px; text-align: center; font-weight: bold; }
+        input { width: 100%; background: #05070a; border: 1px solid #374151; color: #fff; padding: 8px; border-radius: 10px; text-align: center; }
         input[type="range"] { accent-color: var(--gold); margin: 15px 0; }
-        .chart-container { height: 200px; }
+        .chart-container { height: 180px; }
     </style>
 </head>
 <body>
@@ -59,11 +61,15 @@
     <div class="price-grid">
         <div class="p-box"><div class="p-label">VOO</div><div id="voo-p" class="profit">677.64</div></div>
         <div class="p-box"><div class="p-label">QQQ</div><div id="qqq-p" class="profit">705.22</div></div>
-        <div class="p-box"><div class="p-label">SSO</div><div id="sso-p" class="profit">105.40</div></div>
-        <div class="p-box"><div class="p-label">VIX</div><div id="vix-p" class="profit">13.50</div></div>
+        <div class="p-box"><div class="p-label">SSO</div><div id="sso-p" class="profit">65.99</div></div>
+        <div class="p-box"><div class="p-label">VIX</div><div id="vix-p" class="profit">17.34</div></div>
     </div>
 
-    <div id="adviceBox" class="signal-card">分析市場脈動中...</div>
+    <div class="bss-container">
+        <div class="bss-title">MARKET BUY SIGNALS SYSTEM (BSS)</div>
+        <div id="bss-signal" class="bss-signal">分析中...</div>
+        <div id="bss-logic" class="bss-logic">數據同步中，請稍候</div>
+    </div>
 
     <div class="user-tab">
         <button id="btnJR" class="tab-btn active-jr" onclick="switchUser('jr')">家瑞帳戶</button>
@@ -72,10 +78,10 @@
     </div>
 
     <div class="main-card">
-        <p id="displayTitle" style="font-size:10px; color:var(--gold); letter-spacing: 2px; font-weight: bold;">LIVE ASSET VALUE (TWD)</p>
+        <p style="font-size:10px; color:var(--gold); font-weight: bold;">LIVE ASSET VALUE (TWD)</p>
         <h1 id="totalValue">NT$ 0</h1>
         <div style="font-size:11px; color:#94a3b8; margin-top:5px;">
-            起點：2026/05/07 | 累計月數：<span id="monthCount" style="color:var(--gold)">0</span>
+            起點：2026/05/07 | 累計投入：<span id="monthCount" style="color:var(--gold)">1</span> 個月
         </div>
     </div>
 
@@ -90,8 +96,8 @@
 
     <div class="card">
         <div style="display:flex; justify-content:space-between; font-size:12px; font-weight: bold;">
-            <span>複利目標：<span id="yearVal" style="color:var(--gold)">10</span> 年</span>
-            <span style="color:#94a3b8">推估年化：<span id="estRate" style="color:var(--gold)">11.5%</span></span>
+            <span>年限：<span id="yearVal" style="color:var(--gold)">10</span> 年</span>
+            <span style="color:#94a3b8">推估年化：<span id="estRate" style="color:var(--gold)">11.2%</span></span>
         </div>
         <input type="range" id="yearSlider" min="1" max="40" value="10" oninput="update()">
         <div class="chart-container"><canvas id="vChart"></canvas></div>
@@ -101,87 +107,87 @@
 <script>
     let currentUser = 'jr';
     let myChart = null;
-    // 精確鎖定截圖數據
-    let prices = { voo: 677.64, qqq: 705.22, sso: 105.40, vix: 13.50, twd: 32.85 };
-    const startDate = new Date('2026-05-07');
+    let prices = { voo: 677.64, qqq: 705.22, sso: 65.99, vix: 17.34, twd: 32.8 };
+    const apiKey = "Mizli10RkulYZA1eeDqQKfKXfA8iGaji";
 
     const config = {
-        jr: { plans: [{t:'VOO', m:14000, r:0.095}, {t:'QQQ', m:6000, r:0.13}], color: '#D4AF37' },
-        zy: { plans: [{t:'QQQ', m:6000, r:0.13}], color: '#f472b6' },
+        jr: { plans: [{t:'VOO', m:14000, r:0.092}, {t:'QQQ', m:6000, r:0.125}], color: '#D4AF37' },
+        zy: { plans: [{t:'QQQ', m:6000, r:0.125}], color: '#f472b6' },
         all: { color: '#FFD700' }
     };
 
-    function calculateMonths() {
-        const now = new Date();
-        return (now.getFullYear() - startDate.getFullYear()) * 12 + (now.getMonth() - startDate.getMonth());
+    async function syncMarket() {
+        try {
+            const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/VOO,QQQ,SSO,^VIX?apikey=${apiKey}`);
+            const data = await res.json();
+            if (data && data.length > 0) {
+                data.forEach(item => {
+                    let s = item.symbol.replace('^', '').toLowerCase();
+                    prices[s] = item.price;
+                });
+            }
+        } catch (e) { console.log("使用保底數據..."); }
+        updateBSS();
+        update();
     }
 
-    function updateUI() {
-        // 更新頂部數字 (如果是開盤時間，你可以加入 fetch API)
-        ['voo','qqq','sso','vix'].forEach(s => {
-            const el = document.getElementById(`${s}-p`);
-            if (el) el.innerText = prices[s].toFixed(2);
-        });
-
-        // BSS 提示語
-        const box = document.getElementById('adviceBox');
-        if (prices.vix >= 40) {
-            box.innerText = "🚨 十年難得一遇：All In 機會浮現！";
-            box.style.background = "rgba(255, 0, 0, 0.2)";
-            box.style.color = "#FFD700";
-        } else if (prices.vix >= 26) {
-            box.innerText = "⚖️ 可分批逢低買進：價值區域顯現";
-            box.style.background = "rgba(16, 185, 129, 0.2)";
-            box.style.color = "#10b981";
+    // --- BSS 邏輯判斷 ---
+    function updateBSS() {
+        const signalEl = document.getElementById('bss-signal');
+        const logicEl = document.getElementById('bss-logic');
+        const vix = prices.vix;
+        
+        if (vix >= 40) {
+            signalEl.innerText = "👑 十年難得一遇 ALL IN";
+            signalEl.style.color = "#FF4444";
+            logicEl.innerText = "VIX 指數 > 40。市場極度恐慌，這是歷史性的財富重分配機會，建議動用備用現金全力加碼。";
+        } else if (vix >= 26) {
+            signalEl.innerText = "⚖️ 可分批逢低買進";
+            signalEl.style.color = "#10B981";
+            logicEl.innerText = "VIX 指數介於 26-40 之間。市場出現健康修正，估值具吸引力，建議執行分批加碼計畫。";
         } else {
-            box.innerText = "🔥 市場狂熱中：持續定期定額即可";
-            box.style.background = "rgba(255, 255, 255, 0.05)";
-            box.style.color = "#94a3b8";
+            signalEl.innerText = "🔥 市場狂熱中：定期定額";
+            signalEl.style.color = "#94A3B8";
+            logicEl.innerText = "VIX 指數 < 26。目前處於牛市擴張期，建議維持原有定期定額節奏，不宜過度追高。";
         }
-        update();
+
+        // 更新報價顯示
+        ['voo','qqq','sso','vix'].forEach(s => {
+            document.getElementById(`${s}-p`).innerText = prices[s].toFixed(2);
+        });
     }
 
     function switchUser(u) {
         currentUser = u;
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-jr', 'active-zy', 'active-all'));
         document.getElementById('btn' + u.toUpperCase()).classList.add('active-' + u);
-        document.getElementById('inputCard').style.display = (u==='all' ? 'none' : 'block');
         update();
     }
 
     function update() {
         const years = parseInt(document.getElementById('yearSlider').value);
-        const monthsPassed = calculateMonths();
         document.getElementById('yearVal').innerText = years;
-        document.getElementById('monthCount').innerText = monthsPassed;
-
         let plans = (currentUser === 'all') ? [...config.jr.plans, ...config.zy.plans] : config[currentUser].plans;
+        let v_s = parseFloat(document.getElementById('initVOO').value)||0;
+        let q_s = parseFloat(document.getElementById('initQQQ').value)||0;
+        let s_s = parseFloat(document.getElementById('initSSO').value)||0;
         
-        let v_shares = parseFloat(document.getElementById('initVOO').value)||0;
-        let q_shares = parseFloat(document.getElementById('initQQQ').value)||0;
-        let s_shares = parseFloat(document.getElementById('initSSO').value)||0;
-        
-        // 5/7 初始本金市值
-        let startCapital = (v_shares * prices.voo + q_shares * prices.qqq + s_shares * prices.sso) * prices.twd;
-        if(currentUser === 'zy') startCapital = (q_shares * prices.qqq) * prices.twd;
+        let startWealth = (v_s * prices.voo + q_s * prices.qqq + s_s * prices.sso) * prices.twd;
+        if(currentUser === 'zy') startWealth = (q_s * prices.qqq) * prices.twd;
 
-        let labels = [], data = [], cost = [];
         const avgRate = plans.reduce((a,b)=>a+b.r,0) / plans.length || 0.11;
         document.getElementById('estRate').innerText = (avgRate*100).toFixed(1) + "%";
 
+        let labels = [], data = [], cost = [];
         for (let i = 0; i <= years; i++) {
             labels.push(i + 'y');
-            // 複利計算：初始本金 + 每月定期定額
-            let futureV = startCapital * Math.pow(1 + avgRate, i);
+            let futureV = startWealth * Math.pow(1 + avgRate, i);
             let monthlyTotal = plans.reduce((a, b) => a + b.m, 0);
-            
             let r = avgRate/12, n = i*12;
             if(n > 0) futureV += monthlyTotal * ((Math.pow(1+r, n)-1)/r);
-            
             data.push(Math.round(futureV));
-            cost.push(Math.round(startCapital + monthlyTotal * 12 * i));
+            cost.push(Math.round(startWealth + monthlyTotal * 12 * i));
         }
-
         document.getElementById('totalValue').innerText = "NT$ " + data[data.length-1].toLocaleString();
         renderChart(labels, data, cost);
     }
@@ -212,7 +218,8 @@
         });
     }
 
-    window.onload = updateUI;
+    setInterval(syncMarket, 60000); 
+    window.onload = syncMarket;
 </script>
 </body>
 </html>
