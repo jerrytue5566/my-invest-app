@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>35年複利信心觀察站</title>
+  <title>我們的財富成長計畫</title>
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,158 +16,164 @@
     :root {
       --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
       --sub: #94a3b8; --accent: #38bdf8; --success: #10b981; --danger: #f87171;
+      --zy-color: #f472b6; --jr-color: #38bdf8;
     }
     * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 15px; padding-bottom: env(safe-area-inset-bottom); }
     .container { max-width: 600px; margin: auto; }
 
-    /* 即時報價跑馬燈 */
+    /* 頂部即時行情 */
     .market-strip { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding: 5px 0; }
-    .price-card { background: var(--card); padding: 10px 15px; border-radius: 14px; min-width: 120px; border-bottom: 3px solid var(--accent); }
+    .price-card { background: var(--card); padding: 10px 15px; border-radius: 14px; min-width: 120px; border-left: 4px solid var(--accent); }
     .price-card h4 { font-size: 11px; color: var(--sub); }
     .price-val { font-size: 16px; font-weight: bold; margin: 2px 0; }
-    .change { font-size: 11px; font-weight: 600; }
+    .up { color: var(--success); font-size: 11px; font-weight: bold; }
 
-    /* 核心指標 */
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-    .main-card { background: var(--card); border-radius: 18px; padding: 15px; text-align: center; }
-    .main-card h2 { font-size: 11px; color: var(--sub); margin-bottom: 5px; }
-    .main-value { font-size: 24px; font-weight: bold; }
+    /* 市場指標與建議 */
+    .strategy-box { background: #111827; border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .indicator { text-align: center; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; }
+    .indicator h2 { font-size: 10px; color: var(--sub); text-transform: uppercase; }
+    .indicator div { font-size: 22px; font-weight: bold; }
 
-    /* 配置修改區 */
-    .config-section { background: var(--card); border-radius: 18px; padding: 15px; margin-bottom: 15px; }
-    .input-group { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    input { background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 8px; width: 110px; text-align: right; font-size: 16px; }
+    /* 個人投入設定 */
+    .config-section { background: var(--card); border-radius: 20px; padding: 18px; margin-bottom: 15px; }
+    .user-card { margin-bottom: 18px; padding-bottom: 15px; border-bottom: 1px solid #334155; }
+    .user-card:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .user-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .user-header span { font-weight: bold; font-size: 16px; }
+    .input-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .input-row label { font-size: 13px; color: var(--sub); }
+    input { background: #0f172a; border: 1px solid #334155; color: white; padding: 6px 12px; border-radius: 8px; width: 110px; text-align: right; font-size: 15px; }
 
-    /* 信心增強區 (35年) */
-    .confidence-card { background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 20px; padding: 20px; border: 1px solid var(--success); }
-    .future-label { font-size: 14px; color: var(--sub); margin-top: 10px; }
-    .future-total { font-size: 26px; color: var(--success); font-weight: 800; margin-bottom: 15px; }
-    .future-total span { font-size: 14px; font-weight: normal; margin-left: 5px; }
+    /* 複利願景區 */
+    .vision-card { background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 22px; padding: 20px; border: 1px solid var(--success); position: relative; overflow: hidden; }
+    .vision-header { font-size: 15px; font-weight: bold; color: var(--success); margin-bottom: 15px; display: flex; justify-content: space-between; }
+    .stat-group { margin-bottom: 15px; }
+    .stat-item { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+    .stat-label { font-size: 13px; color: var(--sub); }
+    .stat-value { font-size: 20px; font-weight: 800; color: var(--text); }
+    .stat-value.highlight { color: #fbbf24; font-size: 24px; }
+    .stat-value.invested { color: var(--sub); font-size: 16px; font-weight: 400; }
 
-    canvas { background: rgba(255,255,255,0.03); border-radius: 15px; padding: 10px; margin-top: 15px; }
-    
-    .up { color: var(--success); } .down { color: var(--danger); }
-    .status-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-top: 5px; display: inline-block; }
+    canvas { margin-top: 10px; }
+    .footer-note { text-align: center; font-size: 10px; color: #475569; margin-top: 15px; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <div class="market-strip">
-    <div class="price-card"><h4>SPY</h4><div id="spyP" class="price-val">--</div><div id="spyC" class="change">--</div></div>
-    <div class="price-card"><h4>VOO</h4><div id="vooP" class="price-val">--</div><div id="vooC" class="change">--</div></div>
-    <div class="price-card"><h4>QQQ</h4><div id="qqqP" class="price-val">--</div><div id="qqqC" class="change">--</div></div>
+    <div class="price-card"><h4>SPY (S&P 500)</h4><div id="spyP" class="price-val">--</div><div class="up">+0.32%</div></div>
+    <div class="price-card"><h4>VOO (Vanguard)</h4><div id="vooP" class="price-val">--</div><div class="up">+0.35%</div></div>
+    <div class="price-card"><h4>QQQ (Nasdaq)</h4><div id="qqqP" class="price-val">--</div><div class="up">+0.48%</div></div>
   </div>
 
-  <div class="grid">
-    <div class="main-card"><h2>CAPE (估值)</h2><div class="main-value" id="capeV">--</div></div>
-    <div class="main-card"><h2>VIX (恐慌)</h2><div class="main-value" id="vixV">--</div></div>
+  <div class="strategy-box">
+    <div class="grid">
+      <div class="indicator"><h2>CAPE Ratio</h2><div id="capeV">--</div></div>
+      <div class="indicator"><h2>VIX Index</h2><div id="vixV">--</div></div>
+    </div>
+    <div id="actionMsg" style="color: var(--accent); font-weight: bold; font-size: 18px; text-align: center;">分析中...</div>
   </div>
 
   <div class="config-section">
-    <div class="input-group"><span>VOO 持倉 ($)</span><input type="number" id="vIn" value="14000" oninput="runLogic()"></div>
-    <div class="input-group"><span>QQQ 持倉 ($)</span><input type="number" id="qIn" value="6000" oninput="runLogic()"></div>
-    <div style="text-align: right; font-size: 13px; color: var(--accent);">科技權重：<span id="rText">30%</span></div>
+    <div class="user-card">
+      <div class="user-header"><span style="color: var(--zy-color);">🌸 芷吟 每月定投</span></div>
+      <div class="input-row"><label>VOO (USD)</label><input type="number" id="zyV" value="6000" oninput="updateAll()"></div>
+    </div>
+    <div class="user-card">
+      <div class="user-header"><span style="color: var(--jr-color);">💎 家瑞 每月定投</span></div>
+      <div class="input-row"><label>VOO (USD)</label><input type="number" id="jrV" value="14000" oninput="updateAll()"></div>
+      <div class="input-row"><label>QQQ (USD)</label><input type="number" id="jrQ" value="6000" oninput="updateAll()"></div>
+    </div>
   </div>
 
-  <div class="confidence-card">
-    <div style="color: var(--success); font-weight: bold; border-left: 3px solid var(--success); padding-left: 8px;">🚀 複利的力量：未來 35 年預期</div>
+  <div class="vision-card">
+    <div class="vision-header"><span>🚀 35 年複利夢想清單</span><span>年化預估 8%</span></div>
     
-    <div class="future-label">10 年後預估資產：</div>
-    <div class="future-total" id="future10">$ --</div>
+    <div class="stat-group">
+      <div class="stat-item"><span class="stat-label">每月合計投入</span><span class="stat-value" id="mTotal">$ --</span></div>
+      <div class="stat-item"><span class="stat-label">35 年累積投入本金</span><span class="stat-value invested" id="totalIn">$ --</span></div>
+    </div>
 
-    <div class="future-label">35 年後終極資產：</div>
-    <div class="future-total" id="future35" style="color: #fbbf24;">$ --</div>
+    <div class="stat-group" style="border-top: 1px solid #334155; padding-top: 10px;">
+      <div class="stat-item"><span class="stat-label">10 年後資產預估</span><span class="stat-value" id="f10">$ --</span></div>
+      <div class="stat-item"><span class="stat-label">35 年後終極目標</span><span class="stat-value highlight" id="f35">$ --</span></div>
+    </div>
 
-    <p style="font-size: 11px; color: var(--sub); line-height: 1.4;">* 基於標普500歷史平均年化報酬率 8% 計算。35 年後資產約增長為原始投入的 14.7 倍。</p>
-    <canvas id="mainChart" height="180"></canvas>
+    <canvas id="visionChart" height="160"></canvas>
   </div>
 
-  <div style="text-align: center; font-size: 11px; color: #475569; margin-top: 20px;">
-    數據每 10 秒自動更新一次
-  </div>
+  <div class="footer-note">市場數據每 10 秒更新一次 | 複利計算包含每月持續投入</div>
 </div>
 
 <script>
-  let myChart;
-  let currentCape = 36.0, currentVix = 18.0;
+  let chart;
+  let cape = 36.2, vix = 18.5;
 
-  function runLogic() {
-    const v = parseFloat(document.getElementById('vIn').value) || 0;
-    const q = parseFloat(document.getElementById('qIn').value) || 0;
-    const initialTotal = v + q;
+  function updateAll() {
+    const zyV = parseFloat(document.getElementById('zyV').value) || 0;
+    const jrV = parseFloat(document.getElementById('jrV').value) || 0;
+    const jrQ = parseFloat(document.getElementById('jrQ').value) || 0;
+    const monthlyTotal = zyV + jrV + jrQ;
     
-    // 1. 比例計算
-    document.getElementById('rText').innerText = initialTotal === 0 ? "0%" : Math.round((q/initialTotal)*100) + "%";
-
-    // 2. 複利計算 (8% 年化)
-    const rate = 0.08;
-    const val10 = initialTotal * Math.pow(1 + rate, 10);
-    const val35 = initialTotal * Math.pow(1 + rate, 35);
+    document.getElementById('mTotal').innerText = "$" + monthlyTotal.toLocaleString();
     
-    document.getElementById('future10').innerText = "$" + Math.round(val10).toLocaleString();
-    document.getElementById('future35').innerText = "$" + Math.round(val35).toLocaleString();
+    // 複利計算邏輯 (8% 年化)
+    const r = 0.08 / 12;
+    const calcFV = (y) => monthlyTotal * ((Math.pow(1 + r, y * 12) - 1) / r) * (1 + r);
+    
+    document.getElementById('totalIn').innerText = "$" + (monthlyTotal * 12 * 35).toLocaleString();
+    document.getElementById('f10').innerText = "$" + Math.round(calcFV(10)).toLocaleString();
+    document.getElementById('f35').innerText = "$" + Math.round(calcFV(35)).toLocaleString();
 
-    // 3. 更新 35 年長線圖表
-    const yearsLabels = [];
-    const chartData = [];
+    // 更新圖表數據
+    const labels = [], dataF = [], dataP = [];
     for(let i=0; i<=35; i+=5) {
-      yearsLabels.push(i + 'y');
-      chartData.push(Math.round(initialTotal * Math.pow(1 + rate, i)));
+      labels.push(i + 'y');
+      dataP.push(monthlyTotal * 12 * i);
+      dataF.push(Math.round(calcFV(i)));
     }
 
-    if(myChart) myChart.destroy();
-    const ctx = document.getElementById('mainChart').getContext('2d');
-    myChart = new Chart(ctx, {
+    if(chart) chart.destroy();
+    chart = new Chart(document.getElementById('visionChart'), {
       type: 'line',
       data: {
-        labels: yearsLabels,
-        datasets: [{
-          label: '複利增長',
-          data: chartData,
-          borderColor: '#10b981',
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          fill: true,
-          tension: 0.4,
-          pointRadius: 4,
-          pointBackgroundColor: '#fbbf24'
-        }]
+        labels: labels,
+        datasets: [
+          { label: '資產增長', data: dataF, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 },
+          { label: '累積本金', data: dataP, borderColor: '#94a3b8', borderDash: [5, 5], fill: false, tension: 0 }
+        ]
       },
       options: {
         plugins: { legend: { display: false } },
-        scales: {
-          y: { display: false },
-          x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
-        }
+        scales: { y: { display: false }, x: { ticks: { color: '#94a3b8' }, grid: { display: false } } }
       }
     });
+    updateStrategyUI();
   }
 
-  function updateMarketData() {
-    // 模擬行情
-    currentCape = (currentCape + (Math.random()-0.5)*0.2).toFixed(1);
-    currentVix = (currentVix + (Math.random()-0.5)*1.0).toFixed(1);
-    document.getElementById('capeV').innerText = currentCape;
-    document.getElementById('vixV').innerText = currentVix;
+  function updateStrategyUI() {
+    cape = (cape + (Math.random()-0.5)*0.1).toFixed(1);
+    vix = (vix + (Math.random()-0.5)*0.8).toFixed(1);
+    document.getElementById('capeV').innerText = cape;
+    document.getElementById('vixV').innerText = vix;
 
-    const mock = { 
-      s: {p: (520+Math.random()).toFixed(2), c: "+0.32%"}, 
-      v: {p: (480+Math.random()).toFixed(2), c: "+0.35%"}, 
-      q: {p: (440+Math.random()).toFixed(2), c: "-0.08%"} 
-    };
-    setUI('spy', mock.s); setUI('voo', mock.v); setUI('qqq', mock.q);
+    let msg = "📈 正常定期定額";
+    if(vix > 30) msg = "🔥 市場恐慌：大力加碼";
+    else if(cape > 35 && vix < 15) msg = "⚠️ 估值偏高：謹慎追高";
+    document.getElementById('actionMsg').innerText = msg;
+
+    // 模擬即時行情
+    const p = { s: (520+Math.random()).toFixed(2), v: (480+Math.random()).toFixed(2), q: (440+Math.random()).toFixed(2) };
+    document.getElementById('spyP').innerText = "$" + p.s;
+    document.getElementById('vooP').innerText = "$" + p.v;
+    document.getElementById('qqqP').innerText = "$" + p.q;
   }
 
-  function setUI(id, data) {
-    document.getElementById(id+'P').innerText = "$"+data.p;
-    const c = document.getElementById(id+'C');
-    c.innerText = data.c; c.className = "change " + (data.c.includes('+') ? 'up' : 'down');
-  }
-
-  runLogic();
-  updateMarketData();
-  setInterval(updateMarketData, 10000);
+  updateAll();
+  setInterval(updateStrategyUI, 10000);
 </script>
 </body>
 </html>
