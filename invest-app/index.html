@@ -3,74 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>黃金財富計畫 Pro - 家瑞 & 芷吟</title>
+    <title>黃金財富計畫 Pro - 終極版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { 
-            --bg: #0f172a; 
-            --card: #1e293b; 
-            --text: #f8fafc; 
-            --gold: #D4AF37; /* 標準香檳金 */
-            --gold-light: #F97316; /* 亮金/橘金 */
-            --gold-glow: rgba(212, 175, 55, 0.3);
-            --border: #334155;
-            --zy: #f472b6; /* 保留芷吟粉，但邊框用金 */
+            --bg: #0b0f1a; 
+            --card: #161e2d; 
+            --gold: #D4AF37; 
+            --gold-bright: #FFD700;
+            --text: #f8fafc;
+            --border: #2d3748;
+            --zy-pink: #f472b6;
         }
-        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, "微軟正黑體", sans-serif; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, "Segoe UI", sans-serif; }
         body { background:var(--bg); color:var(--text); padding:15px; }
         .container { max-width:500px; margin:auto; }
-        
-        /* 價格看板：金色邊框與陰影 */
+
+        /* 價格看板 */
         .price-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:15px; }
         .p-box { 
             background: rgba(255, 255, 255, 0.03); 
-            padding: 10px 5px; 
-            border-radius: 15px; 
+            padding: 12px 5px; 
+            border-radius: 16px; 
             text-align: center; 
             border: 1px solid var(--gold); 
-            box-shadow: 0 0 10px var(--gold-glow);
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
         }
-        .p-label { font-size: 10px; color: var(--gold); letter-spacing: 1px; margin-bottom: 2px; }
+        .p-label { font-size: 10px; color: var(--gold); letter-spacing: 1px; margin-bottom: 2px; font-weight: bold; }
         .profit { color: #fff; font-weight: bold; font-size: 14px; text-shadow: 0 0 5px var(--gold); }
 
-        /* 建議卡片：金色漸層 */
+        /* 策略建議 */
         .signal-card { 
-            padding: 15px; 
-            border-radius: 20px; 
-            text-align: center; 
-            margin-bottom: 15px; 
-            font-weight: bold; 
-            font-size: 14px;
-            background: linear-gradient(90deg, rgba(212,175,55,0.1), rgba(212,175,55,0.2));
-            border: 1px solid var(--gold);
+            padding: 15px; border-radius: 20px; text-align: center; margin-bottom: 15px; 
+            font-weight: bold; font-size: 14px; border: 1px solid var(--gold);
+            background: linear-gradient(90deg, rgba(212,175,55,0.05), rgba(212,175,55,0.15));
             color: var(--gold);
         }
 
-        .card { background:var(--card); border-radius:24px; padding:20px; margin-bottom:15px; border: 1px solid var(--border); }
-        
-        /* 切換按鈕：金色風格 */
+        /* 用戶切換 */
         .user-tab { display: flex; gap: 8px; margin-bottom: 15px; }
         .tab-btn { 
-            flex: 1; padding: 10px; border-radius: 12px; border: 1px solid var(--gold); 
-            background: transparent; color: var(--gold); cursor: pointer; font-size: 12px; transition: 0.3s;
+            flex: 1; padding: 12px; border-radius: 14px; border: 1px solid var(--border); 
+            background: transparent; color: #94a3b8; cursor: pointer; transition: 0.3s; font-size: 13px;
         }
-        .tab-btn.active-jr { background: var(--gold); color: #000; font-weight: bold; box-shadow: 0 0 15px var(--gold-glow); }
-        .tab-btn.active-zy { background: var(--zy); color: #fff; border-color: var(--zy); }
-        .tab-btn.active-all { background: linear-gradient(45deg, #B8860B, #FFD700); color: #000; font-weight: bold; border: none; }
-        
-        /* 財富數字 */
+        .tab-btn.active-jr { border-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.1); font-weight: bold; }
+        .tab-btn.active-zy { border-color: var(--zy-pink); color: var(--zy-pink); background: rgba(244,114,182,0.1); font-weight: bold; }
+        .tab-btn.active-all { border-color: var(--gold-bright); color: var(--gold-bright); background: rgba(255,215,0,0.1); font-weight: bold; }
+
+        /* 資產主卡片 */
+        .main-card { 
+            background: radial-gradient(circle at top right, #1e293b, #0b0f1a);
+            border: 1px solid var(--gold); border-radius: 28px; padding: 25px; text-align: center; margin-bottom: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
         #totalValue { 
-            background: linear-gradient(to bottom, #FFF, #D4AF37);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 900;
+            font-size: 38px; margin: 10px 0; font-weight: 900;
+            background: linear-gradient(to bottom, #FFFFFF 30%, var(--gold) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        input { background: #0f172a; border: 1px solid var(--gold); color: white; padding: 8px; border-radius: 8px; margin-top: 5px; }
+        /* 輸入區域 */
+        .card { background:var(--card); border-radius:24px; padding:20px; margin-bottom:15px; border: 1px solid var(--border); }
+        .input-row { display: flex; gap: 10px; margin-top: 10px; }
+        .input-group { flex: 1; }
+        .input-group label { display: block; font-size: 10px; color: #94a3b8; margin-bottom: 5px; }
+        input { 
+            width: 100%; background: #0b0f1a; border: 1px solid var(--border); color: #fff; 
+            padding: 10px; border-radius: 10px; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--gold); }
         input[type="range"] { accent-color: var(--gold); margin: 15px 0; }
-        .chart-container { height: 200px; }
+
+        .chart-container { height: 220px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div class="container
+<div class="container">
+    <div class="price-grid">
+        <div class="p-box"><div class="p-label">VOO</div><div id="voo-p" class="profit">--</div></div>
+        <div class="p-box"><div class="p-label">QQQ</div><div id="qqq-p" class="profit">--</div></div>
+        <div class="p-box"><div class="p-label">SSO</div><div id="sso-p" class="profit">--</div></div>
+        <div class="p-box"><div class="p-label">VIX</div><div id="vix-p" class="profit">--</div></div>
+    </div>
+
+    <div id="adviceBox" class="signal-card">🔱 系統正在分析全球市場數據...</div>
+
+    <div class="user-tab">
+        <button id="btnJR" class="tab-btn active-jr" onclick="switchUser('jr')">家瑞帳戶</button>
+        <button id="btnZY" class="tab-btn" onclick="switchUser('zy')">芷吟帳戶</button>
+        <button id="btnALL" class="tab-btn" onclick="switchUser('all')">家庭金庫</button>
+    </div>
+
+    <div class="main-card">
+        <p id="displayTitle" style="font-size:11px; color:var(--gold); letter-spacing: 2px;">GOLDEN WEALTH ESTIMATION</p>
+        <h1 id="totalValue">NT$ 0</h1>
+        <div style="display:flex; justify-content:space-between; margin-top:15px; padding-top:15px; border-top:1px solid rgba(255,255,255,0.05); font-size:13px;">
+            <span style="color:#94a3b8">計畫月投</span>
+            <span id="monthlyInvest" style="color:var(--gold); font-weight:bold;">NT$ 20,000</span>
+        </div>
+    </div>
+
+    <div class="card" id="inputCard">
+        <p style="font-size:13px; color:var(--gold); margin-bottom:10px; font-weight:bold;">現有持股設定 (本金起點)</p>
+        <div class="input-row">
+            <div class="input-group"><label>VOO 股數</label><input type="number" id="initVOO" value="32" oninput="update()"></div>
+            <div class="input-group"><label>QQQ 股數</label><input type="number" id="initQQQ" value="12" oninput="update()"></div>
+            <div class="input-group"><label>SSO 股數</label><input type="number" id="initSSO" value="0" oninput="update()"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; font-size:13px;">
+            <span>複利時間：<span id="yearVal" style="color:var(--gold); font-weight:bold;">10</span> 年</span>
+            <span style="color:#94a3b8">預計回報：<span style="color:var(--gold)">9.2%</span></span>
+        </div>
+        <input type="range" id="yearSlider" min="1" max="40" value="10" oninput="update()">
+        <div class="chart-container"><canvas id="vChart"></canvas></div>
+    </div>
+</div>
+
+<script>
+    let currentUser = 'jr';
+    let myChart = null;
+    let prices = { voo: 512.4, qqq: 446.8, sso: 82.5, vix: 14.5, twd: 32.5 };
+    const apiKey = "Mizli10RkulYZA1eeDqQKfKXfA8iGaji";
+
+    const config = {
+        jr: { name: "家瑞", plans: [{t:'VOO', m:14000, r:0.085}, {t:'QQQ', m:6000, r:0.12}], color: '#D4AF37' },
+        zy: { name: "芷吟", plans: [{t:'QQQ', m:6000, r:0.12}], color: '#f472b6' },
+        all: { name: "家庭總額", color: '#FFD700' }
+    };
+
+    async function fetchPrices() {
+        try {
+            const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/VOO,QQQ,SSO,^VIX?apikey=${apiKey}`);
+            const data = await res.json();
+            if (data && data.length > 0) {
+                data.forEach(item => {
+                    let s = item.symbol.replace('^', '').toLowerCase();
+                    prices[s] = item.price;
+                    document.getElementById(`${s}-p`).innerText = "$" + item.price.toFixed(1);
+                });
+            }
+        } catch (e) { console.log("使用保底報價"); }
+        updateSignals();
+        update();
+    }
+
+    function updateSignals() {
+        const box = document.getElementById('adviceBox');
+        if (prices.vix > 28) {
+            box.innerText = "🔱 黃金買點：VIX 恐慌飆升，建議大幅加碼！";
+            box.style.color = "var(--gold-bright)";
+        } else if (prices.vix < 14) {
+            box.innerText = "✨ 市場穩定：目前估值正常，維持定期定額。";
+            box.style.color = "var(--gold)";
+        } else {
+            box.innerText = "✅ 穩健累積：財富緩步增長中。";
+        }
+    }
+
+    function switchUser(u) {
+        currentUser = u;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-jr', 'active-zy', 'active-all'));
+        document.getElementById('btn' + u.toUpperCase()).classList.add('active-' + u);
+        document.getElementById('displayTitle').innerText = (u==='all' ? 'GOLDEN FAMILY VAULT' : u.toUpperCase() + ' ASSET ESTIMATION');
+        document.getElementById('inputCard').style.display = (u==='all' ? 'none' : 'block');
+        update();
+    }
+
+    function update() {
+        const years = parseInt(document.getElementById('yearSlider').value);
+        document.getElementById('yearVal').innerText = years;
+
+        let plans = (currentUser === 'all') ? [...config.jr.plans, ...config.zy.plans] : config[currentUser].plans;
+        
+        // 計算本金起點
+        let v = parseFloat(document.getElementById('initVOO').value)||0;
+        let q = parseFloat(document.getElementById('initQQQ').value)||0;
+        let s = parseFloat(document.getElementById('initSSO').value)||0;
+        
+        let startCapital = (v * prices.voo + q * prices.qqq + s * prices.sso) * prices.twd;
+        if(currentUser === 'zy') startCapital = (q * prices.qqq) * prices.twd;
+
+        const monthlyTotal = plans.reduce((a, b) => a + b.m, 0);
+        document.getElementById('monthlyInvest').innerText = "NT$ " + monthlyTotal.toLocaleString();
+
+        let labels = [], data = [], cost = [];
+        for (let i = 0; i <= years; i++) {
+            labels.push(i + 'y');
+            let futureV = startCapital * Math.pow(1.08, i);
+            plans.forEach(p => {
+                let r = p.r/12, n = i*12;
+                if(n>0) futureV += p.m * ((Math.pow(1+r, n)-1)/r);
+            });
+            data.push(Math.round(futureV));
+            cost.push(Math.round(startCapital + monthlyTotal * 12 * i));
+        }
+
+        document.getElementById('totalValue').innerText = "NT$ " + data[data.length-1].toLocaleString();
+        renderChart(labels, data, cost);
+    }
+
+    function renderChart(labels, data, cost) {
+        const ctx = document.getElementById('vChart').getContext('2d');
+        if (myChart) myChart.destroy();
+        const grad = ctx.createLinearGradient(0, 0, 0, 200);
+        grad.addColorStop(0, 'rgba(212, 175, 55, 0.3)');
+        grad.addColorStop(1, 'rgba(212, 175, 55, 0)');
+
+        myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '市值', data: data, borderColor: config[currentUser].color, 
+                    borderWidth: 3, backgroundColor: grad, fill: true, tension: 0.4, pointRadius: 0
+                }, {
+                    label: '成本', data: cost, borderColor: 'rgba(255,255,255,0.1)', borderDash: [5,5], pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { ticks: { color: '#64748b', callback: v => (v/10000)+'萬' }, grid: { color: 'rgba(255,255,255,0.03)' } },
+                    x: { ticks: { color: '#64748b' }, grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    setInterval(fetchPrices, 300000); // 5分鐘刷新
+    window.onload = fetchPrices;
+</script>
+</body>
+</html>
