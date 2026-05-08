@@ -4,196 +4,150 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>我們的財富成長計畫</title>
-
+  
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="投資助手">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2422/2422796.png">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
-    :root {
-      --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
-      --sub: #94a3b8; --accent: #38bdf8; --success: #10b981; --danger: #f87171;
-      --zy-color: #f472b6; --jr-color: #38bdf8; --tw-color: #fbbf24;
+    :root { 
+      --bg: #0f172a; --card: #1e293b; --text: #f8fafc; 
+      --sub: #94a3b8; --accent: #38bdf8; --success: #10b981; 
+      --danger: #f87171; --zy-color: #f472b6; --jr-color: #38bdf8; 
     }
     * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, system-ui, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 15px; padding-bottom: env(safe-area-inset-bottom); }
     .container { max-width: 600px; margin: auto; }
 
-    /* 頂部即時行情 - 支援橫向捲動 */
-    .market-strip { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding: 5px 0; -webkit-overflow-scrolling: touch; }
-    .price-card { background: var(--card); padding: 10px 15px; border-radius: 14px; min-width: 130px; border-left: 4px solid var(--accent); }
-    .price-card.tw { border-left-color: var(--tw-color); }
-    .price-card h4 { font-size: 11px; color: var(--sub); }
-    .price-val { font-size: 16px; font-weight: bold; margin: 2px 0; }
-    .up { color: var(--success); font-size: 11px; font-weight: bold; }
-    .down { color: var(--danger); font-size: 11px; font-weight: bold; }
+    /* 市場報價 */
+    .market-strip { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding: 5px 0; }
+    .price-card { background: var(--card); padding: 12px 18px; border-radius: 16px; min-width: 140px; border-left: 4px solid var(--accent); }
+    .price-val { font-size: 18px; font-weight: bold; margin: 2px 0; }
+    .change { font-size: 12px; font-weight: bold; }
+    .up { color: var(--success); } .down { color: var(--danger); }
 
-    /* 市場指標與建議 */
-    .strategy-box { background: #111827; border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-    .indicator { text-align: center; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; }
-    .indicator h2 { font-size: 10px; color: var(--sub); text-transform: uppercase; }
-    .indicator div { font-size: 22px; font-weight: bold; }
+    /* 策略建議 */
+    .strategy-box { background: #111827; border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
+    .ind { text-align: center; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; }
+    .ind h2 { font-size: 10px; color: var(--sub); }
+    .ind div { font-size: 22px; font-weight: bold; }
 
-    /* 個人投入設定 */
-    .config-section { background: var(--card); border-radius: 20px; padding: 18px; margin-bottom: 15px; }
-    .user-card { margin-bottom: 18px; padding-bottom: 15px; border-bottom: 1px solid #334155; }
-    .user-card:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-    .user-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .user-header span { font-weight: bold; font-size: 16px; }
+    /* 分人投入設定 */
+    .config-section { background: var(--card); border-radius: 24px; padding: 20px; margin-bottom: 15px; }
+    .user-block { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #334155; }
+    .user-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
     .input-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-    .input-row label { font-size: 13px; color: var(--sub); }
-    input { background: #0f172a; border: 1px solid #334155; color: white; padding: 6px 12px; border-radius: 8px; width: 110px; text-align: right; font-size: 15px; }
+    input { background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 10px; width: 110px; text-align: right; }
 
-    /* 複利願景區 */
-    .vision-card { background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 22px; padding: 20px; border: 1px solid var(--success); position: relative; overflow: hidden; }
-    .vision-header { font-size: 15px; font-weight: bold; color: var(--success); margin-bottom: 15px; display: flex; justify-content: space-between; }
-    .stat-group { margin-bottom: 15px; }
-    .stat-item { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-    .stat-label { font-size: 13px; color: var(--sub); }
-    .stat-value { font-size: 20px; font-weight: 800; color: var(--text); }
-    .stat-value.highlight { color: #fbbf24; font-size: 24px; }
-    .stat-value.invested { color: var(--sub); font-size: 16px; font-weight: 400; }
-
-    canvas { margin-top: 10px; }
-    .footer-note { text-align: center; font-size: 10px; color: #475569; margin-top: 15px; }
+    /* 35年複利預估 */
+    .vision-card { background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 24px; padding: 20px; border: 1px solid var(--success); }
+    .f-total { font-size: 26px; color: #fbbf24; font-weight: 800; margin-bottom: 15px; }
+    canvas { margin-top: 15px; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <div class="market-strip">
-    <div class="price-card tw"><h4>TAIEX (台股)</h4><div id="twP" class="price-val">--</div><div id="twC" class="up">--</div></div>
-    <div class="price-card tw"><h4>TSMC (2330)</h4><div id="tsmcP" class="price-val">--</div><div id="tsmcC" class="up">--</div></div>
-    <div class="price-card"><h4>VOO (S&P 500)</h4><div id="vooP" class="price-val">--</div><div id="vooC" class="up">--</div></div>
-    <div class="price-card"><h4>QQQ (Nasdaq)</h4><div id="qqqP" class="price-val">--</div><div id="qqqC" class="up">--</div></div>
+    <div class="price-card"><h4>VOO</h4><div id="vooP" class="price-val">讀取中</div><div id="vooC" class="change">--</div></div>
+    <div class="price-card"><h4>QQQ</h4><div id="qqqP" class="price-val">讀取中</div><div id="qqqC" class="change">--</div></div>
+    <div class="price-card"><h4>SSO</h4><div id="ssoP" class="price-val">讀取中</div><div id="ssoC" class="change">--</div></div>
   </div>
 
   <div class="strategy-box">
     <div class="grid">
-      <div class="indicator"><h2>CAPE Ratio</h2><div id="capeV">--</div></div>
-      <div class="indicator"><h2>VIX Index</h2><div id="vixV">--</div></div>
+      <div class="ind"><h2>CAPE RATIO</h2><div id="capeV">--</div></div>
+      <div class="ind"><h2>VIX INDEX</h2><div id="vixV">--</div></div>
     </div>
-    <div id="actionMsg" style="color: var(--accent); font-weight: bold; font-size: 18px; text-align: center;">分析中...</div>
+    <div id="actMsg" style="color:var(--accent); font-weight:bold; text-align:center;">正在評估市場策略...</div>
   </div>
 
   <div class="config-section">
-    <div class="user-card">
-      <div class="user-header"><span style="color: var(--zy-color);">🌸 芷吟 每月定投</span></div>
-      <div class="input-row"><label>VOO (USD)</label><input type="number" id="zyV" value="6000" oninput="updateAll()"></div>
+    <div class="user-block">
+      <div style="color:var(--zy-color); font-weight:bold; margin-bottom:10px">🌸 芷吟 每月定投</div>
+      <div class="input-row"><span>VOO (USD)</span><input type="number" id="zyV" value="6000" oninput="recalc()"></div>
     </div>
-    <div class="user-card">
-      <div class="user-header"><span style="color: var(--jr-color);">💎 家瑞 每月定投</span></div>
-      <div class="input-row"><label>VOO (USD)</label><input type="number" id="jrV" value="14000" oninput="updateAll()"></div>
-      <div class="input-row"><label>QQQ (USD)</label><input type="number" id="jrQ" value="6000" oninput="updateAll()"></div>
+    <div class="user-block">
+      <div style="color:var(--jr-color); font-weight:bold; margin-bottom:10px">💎 家瑞 每月定投</div>
+      <div class="input-row"><span>VOO (USD)</span><input type="number" id="jrV" value="14000" oninput="recalc()"></div>
+      <div class="input-row"><span>QQQ (USD)</span><input type="number" id="jrQ" value="6000" oninput="recalc()"></div>
     </div>
   </div>
 
   <div class="vision-card">
-    <div class="vision-header"><span>🚀 35 年複利願景</span><span>年化預估 8%</span></div>
-    
-    <div class="stat-group">
-      <div class="stat-item"><span class="stat-label">每月合計投入</span><span class="stat-value" id="mTotal">$ --</span></div>
-      <div class="stat-item"><span class="stat-label">35 年累積投入本金</span><span class="stat-value invested" id="totalIn">$ --</span></div>
-    </div>
-
-    <div class="stat-group" style="border-top: 1px solid #334155; padding-top: 10px;">
-      <div class="stat-item"><span class="stat-label">10 年後資產預估</span><span class="stat-value" id="f10">$ --</span></div>
-      <div class="stat-item"><span class="stat-label">35 年後終極目標</span><span class="stat-value highlight" id="f35">$ --</span></div>
-    </div>
-
-    <canvas id="visionChart" height="160"></canvas>
+    <div style="color:var(--success); font-weight:bold; margin-bottom:10px">🚀 35 年後資產願景預估 (8% 年化)</div>
+    <div class="f-total" id="f35">$ --</div>
+    <div style="font-size:12px; color:var(--sub)">累積投入總本金: <span id="totalIn">--</span></div>
+    <canvas id="vChart" height="180"></canvas>
   </div>
-
-  <div class="footer-note">市場數據模擬每 10 秒更新一次 | 包含每月持續投入之複利計算</div>
 </div>
 
 <script>
+  // 已填入你的專屬 API KEY
+  const API_KEY = "Mizli10RkulYZA1eeDqQKfKXfA8iGaji"; 
   let chart;
-  let cape = 36.2, vix = 18.5;
 
-  function updateAll() {
-    const zyV = parseFloat(document.getElementById('zyV').value) || 0;
-    const jrV = parseFloat(document.getElementById('jrV').value) || 0;
-    const jrQ = parseFloat(document.getElementById('jrQ').value) || 0;
-    const monthlyTotal = zyV + jrV + jrQ;
+  async function fetchPrices() {
+    try {
+      const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/VOO,QQQ,SSO?apikey=${API_KEY}`);
+      const data = await res.json();
+      data.forEach(s => {
+        const id = s.symbol.toLowerCase();
+        document.getElementById(id+'P').innerText = "$" + s.price.toFixed(2);
+        const cEl = document.getElementById(id+'C');
+        cEl.innerText = (s.changesPercentage > 0 ? "+" : "") + s.changesPercentage.toFixed(2) + "%";
+        cEl.className = "change " + (s.changesPercentage >= 0 ? "up" : "down");
+      });
+    } catch (e) { console.error("數據更新失敗"); }
+  }
+
+  function recalc() {
+    const totalM = parseFloat(document.getElementById('zyV').value) + 
+                   parseFloat(document.getElementById('jrV').value) + 
+                   parseFloat(document.getElementById('jrQ').value);
     
-    document.getElementById('mTotal').innerText = "$" + monthlyTotal.toLocaleString();
-    
-    // 複利計算邏輯 (8% 年化)
+    // 定期定額複利公式
     const r = 0.08 / 12;
-    const calcFV = (y) => {
-        if (monthlyTotal === 0) return 0;
-        return monthlyTotal * ((Math.pow(1 + r, y * 12) - 1) / r) * (1 + r);
-    };
+    const calc = (y) => totalM * ((Math.pow(1 + r, y * 12) - 1) / r) * (1 + r);
     
-    document.getElementById('totalIn').innerText = "$" + (monthlyTotal * 12 * 35).toLocaleString();
-    document.getElementById('f10').innerText = "$" + Math.round(calcFV(10)).toLocaleString();
-    document.getElementById('f35').innerText = "$" + Math.round(calcFV(35)).toLocaleString();
+    document.getElementById('f35').innerText = "$" + Math.round(calc(35)).toLocaleString();
+    document.getElementById('totalIn').innerText = "$" + (totalM * 12 * 35).toLocaleString();
 
-    // 更新圖表數據
-    const labels = [], dataF = [], dataP = [];
+    const labs = [], dataF = [], dataP = [];
     for(let i=0; i<=35; i+=5) {
-      labels.push(i + 'y');
-      dataP.push(monthlyTotal * 12 * i);
-      dataF.push(Math.round(calcFV(i)));
+      labs.push(i+'y');
+      dataP.push(totalM * 12 * i);
+      dataF.push(Math.round(calc(i)));
     }
 
     if(chart) chart.destroy();
-    chart = new Chart(document.getElementById('visionChart'), {
+    chart = new Chart(document.getElementById('vChart'), {
       type: 'line',
       data: {
-        labels: labels,
+        labels: labs,
         datasets: [
-          { label: '預計資產', data: dataF, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 },
-          { label: '累積投入本金', data: dataP, borderColor: '#94a3b8', borderDash: [5, 5], fill: false, tension: 0 }
+          { label: '預估資產', data: dataF, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 },
+          { label: '累積本金', data: dataP, borderColor: '#94a3b8', borderDash: [5,5], fill: false }
         ]
       },
-      options: {
-        plugins: { legend: { display: false } },
-        scales: { y: { display: false }, x: { ticks: { color: '#94a3b8' }, grid: { display: false } } }
-      }
+      options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { ticks: { color: '#94a3b8' } } } }
     });
-    updateStrategyUI();
   }
 
-  function updateStrategyUI() {
-    cape = (cape + (Math.random()-0.5)*0.1).toFixed(1);
-    vix = (vix + (Math.random()-0.5)*0.8).toFixed(1);
+  function simulateIndicators() {
+    const cape = (36.5 + Math.random()*0.5).toFixed(1);
+    const vix = (18.2 + Math.random()*2).toFixed(1);
     document.getElementById('capeV').innerText = cape;
     document.getElementById('vixV').innerText = vix;
-
-    let msg = "📈 正常定期定額";
-    if(vix > 30) msg = "🔥 市場恐慌：大力加碼";
-    else if(cape > 35 && vix < 15) msg = "⚠️ 估值偏高：謹慎追高";
-    document.getElementById('actionMsg').innerText = msg;
-
-    // 模擬即時行情 (包含台美股)
-    const p = { 
-        tw: (21500+Math.random()*100).toFixed(0), twc: "+0.45%",
-        tsmc: (950+Math.random()*5).toFixed(1), tsmcc: "+0.82%",
-        voo: (480+Math.random()).toFixed(2), vooc: "+0.35%",
-        qqq: (440+Math.random()).toFixed(2), qqqc: "+0.48%"
-    };
-    
-    updatePriceUI('tw', p.tw, p.twc);
-    updatePriceUI('tsmc', p.tsmc, p.tsmcc);
-    updatePriceUI('voo', p.voo, p.vooc);
-    updatePriceUI('qqq', p.qqq, p.qqqc);
+    document.getElementById('actMsg').innerText = vix > 25 ? "🔥 市場回檔：分批加碼好時機" : "📈 正常紀律定投中";
   }
 
-  function updatePriceUI(id, price, change) {
-      document.getElementById(id+'P').innerText = (id === 'tw' || id === 'tsmc') ? price : "$" + price;
-      const c = document.getElementById(id+'C');
-      c.innerText = change;
-      c.className = change.includes('+') ? 'up' : 'down';
-  }
-
-  updateAll();
-  setInterval(updateStrategyUI, 10000);
+  setInterval(fetchPrices, 60000); 
+  setInterval(simulateIndicators, 15000);
+  fetchPrices(); simulateIndicators(); recalc();
 </script>
 </body>
 </html>
