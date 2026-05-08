@@ -7,7 +7,6 @@
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="投資助手">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2422/2422796.png">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -35,37 +34,16 @@
     .p-label { font-size: 10px; color: var(--sub); margin-bottom: 4px; }
     .p-val { font-size: 13px; font-weight: bold; }
 
-    /* 獨立持倉設定區 */
+    /* 持倉與定投設定 */
     .config-section { background: var(--card); border-radius: 24px; padding: 20px; margin-bottom: 15px; }
     .user-config-group { margin-bottom: 15px; padding: 15px; border-radius: 16px; background: rgba(0,0,0,0.2); position: relative; overflow: hidden; }
     .user-config-group::after { content: ''; position: absolute; top:0; left:0; width: 4px; height: 100%; }
     .zy-side::after { background: var(--zy-color); }
     .jr-side::after { background: var(--jr-color); }
     .input-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-    .input-row label { font-size: 13px; color: var(--sub); }
     input { background: #0f172a; border: 1px solid #334155; color: white; padding: 6px; border-radius: 8px; width: 90px; text-align: right; font-size: 14px; }
 
-    /* 願景圖 */
-    .vision-card { background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 24px; padding: 20px; border: 1px solid var(--success); }
-    .profit { color: var(--success); } .loss { color: var(--danger); }
-  </style>
-</head>
-<body>
-
-<div class="container">
-  <div class="market-strip">
-    <div class="price-card"><h4>VOO</h4><div id="vooP" class="price-val">--</div><div id="vooC" class="change">--</div></div>
-    <div class="price-card"><h4>QQQ</h4><div id="qqqP" class="price-val">--</div><div id="qqqC" class="change">--</div></div>
-    <div class="price-card"><h4>SSO</h4><div id="ssoP" class="price-val">--</div><div id="ssoC" class="change">--</div></div>
-  </div>
-
-  <div class="tracking-card">
-    <div class="total-main">
-        <div class="p-label" style="font-size: 12px; color: var(--accent);">📊 兩人合計總資產損益 (TWD)</div>
-        <div id="totalP" style="font-size: 32px; font-weight: 800; margin: 5px 0;">NT$ 0</div>
-        <div id="totalROI" style="font-size: 14px; font-weight: bold;">+0.00%</div>
-    </div>
-    <div class="profit-row">
-        <div class="p-box"><div class="p-label" style="color:var(--zy-color)">🌸 芷吟</div><div id="zyP" class="p-val">--</div></div>
-        <div class="p-box"><div class="p-label" style="color:var(--jr-color)">💎 家瑞</div><div id="jrP" class="p-val">--</div></div>
-        <div class="p-box"><div class="p-label">總市值</div><div id="allMarket" class="p-val" style="font-size: 1
+    /* 表格樣式 */
+    .table-container { background: var(--card); border-radius: 24px; padding: 15px; margin-top: 15px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: right; }
+    th { color: var(--sub); font-weight: normal; padding: 10px; border-bottom: 1px
