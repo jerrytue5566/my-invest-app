@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Golden Vault Pro - 終極策略版</title>
+    <title>Golden Vault Pro - 實戰準確版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { 
@@ -14,16 +14,15 @@
         body { background:var(--bg); color:var(--text); padding:15px; }
         .container { max-width:500px; margin:auto; }
 
-        /* 價格看板 */
         .price-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:15px; }
         .p-box { 
             background: rgba(255, 255, 255, 0.03); padding: 12px 5px; border-radius: 16px; 
             text-align: center; border: 1px solid var(--gold); box-shadow: 0 0 12px rgba(212, 175, 55, 0.15);
         }
-        .p-label { font-size: 10px; color: var(--gold); letter-spacing: 1px; margin-bottom: 2px; font-weight: bold; }
-        .profit { color: #fff; font-weight: bold; font-size: 14px; text-shadow: 0 0 5px var(--gold); }
+        .p-label { font-size: 10px; color: var(--gold); margin-bottom: 2px; font-weight: bold; }
+        .profit { color: #fff; font-weight: bold; font-size: 13px; text-shadow: 0 0 5px var(--gold); }
 
-        /* BSS 策略框 */
+        /* BSS 策略框：依照你的需求分為三級 */
         .signal-card { 
             padding: 15px; border-radius: 20px; text-align: center; margin-bottom: 15px; 
             font-weight: bold; font-size: 14px; border: 2px solid var(--gold);
@@ -37,10 +36,7 @@
         }
         .tab-btn.active-jr { border-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.1); }
         .tab-btn.active-zy { border-color: var(--zy-pink); color: var(--zy-pink); background: rgba(244,114,182,0.1); }
-        .tab-btn.active-all { 
-            border-color: var(--gold-bright); color: var(--gold-bright); 
-            background: rgba(255,215,0,0.1); animation: glow 2s infinite alternate;
-        }
+        .tab-btn.active-all { border-color: var(--gold-bright); color: var(--gold-bright); background: rgba(255,215,0,0.1); animation: glow 2s infinite alternate; }
         @keyframes glow { from { box-shadow: 0 0 5px rgba(255,215,0,0.2); } to { box-shadow: 0 0 15px rgba(255,215,0,0.5); } }
 
         .main-card { 
@@ -54,15 +50,7 @@
         }
 
         .card { background:var(--card); border-radius:24px; padding:20px; margin-bottom:15px; border: 1px solid var(--border); }
-        .input-row { display: flex; gap: 10px; margin-top: 10px; }
-        .input-group { flex: 1; text-align: center; }
-        .input-group label { display: block; font-size: 10px; color: #94a3b8; margin-bottom: 4px; }
-        .sub-text { font-size: 9px; color: var(--gold); margin-top: 4px; opacity: 0.8; }
-        
-        input { 
-            width: 100%; background: #0b0f1a; border: 1px solid var(--border); color: #fff; 
-            padding: 8px; border-radius: 10px; text-align: center;
-        }
+        input { width: 100%; background: #0b0f1a; border: 1px solid var(--border); color: #fff; padding: 8px; border-radius: 10px; text-align: center; margin-top: 5px; }
         input:focus { border-color: var(--gold); }
         input[type="range"] { accent-color: var(--gold); margin: 15px 0; }
         .chart-container { height: 210px; }
@@ -72,13 +60,13 @@
 
 <div class="container">
     <div class="price-grid">
-        <div class="p-box"><div class="p-label">VOO</div><div id="voo-p" class="profit">--</div></div>
-        <div class="p-box"><div class="p-label">QQQ</div><div id="qqq-p" class="profit">--</div></div>
-        <div class="p-box"><div class="p-label">SSO</div><div id="sso-p" class="profit">--</div></div>
-        <div class="p-box"><div class="p-label">VIX</div><div id="vix-p" class="profit">--</div></div>
+        <div class="p-box"><div class="p-label">VOO</div><div id="voo-p" class="profit">677.6</div></div>
+        <div class="p-box"><div class="p-label">QQQ</div><div id="qqq-p" class="profit">550.2</div></div>
+        <div class="p-box"><div class="p-label">SSO</div><div id="sso-p" class="profit">95.4</div></div>
+        <div class="p-box"><div class="p-label">VIX</div><div id="vix-p" class="profit">13.5</div></div>
     </div>
 
-    <div id="adviceBox" class="signal-card">🔱 正在連線全球策略中心...</div>
+    <div id="adviceBox" class="signal-card">掃描市場情緒中...</div>
 
     <div class="user-tab">
         <button id="btnJR" class="tab-btn active-jr" onclick="switchUser('jr')">家瑞帳戶</button>
@@ -97,29 +85,17 @@
 
     <div class="card" id="inputCard">
         <p style="font-size:12px; color:var(--gold); margin-bottom:10px; font-weight:bold;">現有持股設定 (本金起點)</p>
-        <div class="input-row">
-            <div class="input-group">
-                <label>VOO</label>
-                <input type="number" id="initVOO" value="32" oninput="update()">
-                <div id="v-val" class="sub-text">$0</div>
-            </div>
-            <div class="input-group">
-                <label>QQQ</label>
-                <input type="number" id="initQQQ" value="12" oninput="update()">
-                <div id="q-val" class="sub-text">$0</div>
-            </div>
-            <div class="input-group">
-                <label>SSO</label>
-                <input type="number" id="initSSO" value="0" oninput="update()">
-                <div id="s-val" class="sub-text">$0</div>
-            </div>
+        <div style="display:flex; gap:10px;">
+            <div style="flex:1;"><label style="font-size:10px; color:#94a3b8">VOO 股數</label><input type="number" id="initVOO" value="32" oninput="update()"></div>
+            <div style="flex:1;"><label style="font-size:10px; color:#94a3b8">QQQ 股數</label><input type="number" id="initQQQ" value="12" oninput="update()"></div>
+            <div style="flex:1;"><label style="font-size:10px; color:#94a3b8">SSO 股數</label><input type="number" id="initSSO" value="0" oninput="update()"></div>
         </div>
     </div>
 
     <div class="card">
         <div style="display:flex; justify-content:space-between; font-size:13px;">
             <span>複利時間：<span id="yearVal" style="color:var(--gold); font-weight:bold;">10</span> 年</span>
-            <span style="color:#94a3b8">預計報酬：<span style="color:var(--gold)">9.2%</span></span>
+            <span style="color:#94a3b8">預計回報：<span style="color:var(--gold)">10.5%</span></span>
         </div>
         <input type="range" id="yearSlider" min="1" max="40" value="10" oninput="update()">
         <div class="chart-container"><canvas id="vChart"></canvas></div>
@@ -129,17 +105,19 @@
 <script>
     let currentUser = 'jr';
     let myChart = null;
-    let prices = { voo: 512.5, qqq: 446.2, sso: 82.3, vix: 14.2, twd: 32.5 };
+    // 依據截圖修正為 2026 最新真實行情
+    let prices = { voo: 677.6, qqq: 550.2, sso: 95.4, vix: 13.5, twd: 32.5 };
     const apiKey = "Mizli10RkulYZA1eeDqQKfKXfA8iGaji";
 
     const config = {
-        jr: { plans: [{t:'VOO', m:14000, r:0.085}, {t:'QQQ', m:6000, r:0.12}], color: '#D4AF37' },
+        jr: { plans: [{t:'VOO', m:14000, r:0.09}, {t:'QQQ', m:6000, r:0.12}], color: '#D4AF37' },
         zy: { plans: [{t:'QQQ', m:6000, r:0.12}], color: '#f472b6' },
         all: { color: '#FFD700' }
     };
 
     async function fetchPrices() {
         try {
+            // 嘗試獲取最新價格
             const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/VOO,QQQ,SSO,^VIX?apikey=${apiKey}`);
             const data = await res.json();
             if (data && data.length > 0) {
@@ -148,40 +126,30 @@
                     prices[s] = item.price;
                 });
             }
-        } catch (e) { console.log("報價獲取失敗，使用最後已知價格"); }
+        } catch (e) { console.log("連線受阻，顯示最新保底行情"); }
         
         updateUI();
     }
 
     function updateUI() {
         ['voo','qqq','sso','vix'].forEach(s => {
-            const el = document.getElementById(`${s}-p`);
-            if (el) el.innerText = "$" + prices[s].toFixed(1);
+            document.getElementById(`${s}-p`).innerText = "$" + prices[s].toFixed(1);
         });
 
-        // --- 三段式 BSS 策略判斷邏輯 ---
+        // BSS 三段式邏輯
         const box = document.getElementById('adviceBox');
-        const vix = prices.vix;
-        const cape = 34.1; // 模擬當前 CAPE 指數
-        
-        if (vix >= 40 || (vix > 35 && cape < 22)) {
+        if (prices.vix >= 40) {
             box.innerText = "🚨 十年難得一遇：市場極度崩潰，All In 機會浮現！";
-            box.style.color = "#FFD700";
             box.style.background = "rgba(255, 0, 0, 0.4)";
-            box.style.borderColor = "#FFD700";
-            box.style.animation = "glow 0.5s infinite alternate";
-        } else if (vix >= 25 || cape < 25) {
+            box.style.color = "#FFD700";
+        } else if (prices.vix >= 25) {
             box.innerText = "⚖️ 可分批逢低買進：市場出現修正，價值顯現。";
-            box.style.color = "#D4AF37";
             box.style.background = "rgba(16, 185, 129, 0.2)";
-            box.style.borderColor = "#D4AF37";
-            box.style.animation = "none";
+            box.style.color = "#D4AF37";
         } else {
-            box.innerText = "🔥 市場狂熱中：估值偏高，持續定期定額。";
-            box.style.color = "#94a3b8";
+            box.innerText = "🔥 市場狂熱中：估值偏高，持續定期定額即可。";
             box.style.background = "rgba(255, 255, 255, 0.05)";
-            box.style.borderColor = "var(--gold)";
-            box.style.animation = "none";
+            box.style.color = "#94a3b8";
         }
         update();
     }
@@ -200,16 +168,10 @@
         document.getElementById('yearVal').innerText = years;
 
         let plans = (currentUser === 'all') ? [...config.jr.plans, ...config.zy.plans] : config[currentUser].plans;
-        
         let v = parseFloat(document.getElementById('initVOO').value)||0;
         let q = parseFloat(document.getElementById('initQQQ').value)||0;
         let s = parseFloat(document.getElementById('initSSO').value)||0;
         
-        // 更新單項顯示
-        document.getElementById('v-val').innerText = "≈ NT$" + Math.round(v * prices.voo * prices.twd).toLocaleString();
-        document.getElementById('q-val').innerText = "≈ NT$" + Math.round(q * prices.qqq * prices.twd).toLocaleString();
-        document.getElementById('s-val').innerText = "≈ NT$" + Math.round(s * prices.sso * prices.twd).toLocaleString();
-
         let startCapital = (v * prices.voo + q * prices.qqq + s * prices.sso) * prices.twd;
         if(currentUser === 'zy') startCapital = (q * prices.qqq) * prices.twd;
 
@@ -219,7 +181,7 @@
         let labels = [], data = [], cost = [];
         for (let i = 0; i <= years; i++) {
             labels.push(i + 'y');
-            let futureV = startCapital * Math.pow(1.09, i);
+            let futureV = startCapital * Math.pow(1.10, i); // 依照現況調升預期年化
             plans.forEach(p => {
                 let r = p.r/12, n = i*12;
                 if(n>0) futureV += p.m * ((Math.pow(1+r, n)-1)/r);
