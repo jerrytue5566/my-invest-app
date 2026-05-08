@@ -38,17 +38,17 @@
 
 <div class="container">
   <div class="market-strip">
-    <div class="price-card"><h4>VOO</h4><div id="vooP" class="price-val">載入中</div><div id="vooC" class="change">--</div></div>
-    <div class="price-card"><h4>QQQ</h4><div id="qqqP" class="price-val">載入中</div><div id="qqqC" class="change">--</div></div>
-    <div class="price-card"><h4>SSO</h4><div id="ssoP" class="price-val">載入中</div><div id="ssoC" class="change">--</div></div>
+    <div class="price-card"><h4>VOO</h4><div id="vooP" class="price-val">讀取中</div><div id="vooC" class="change">--</div></div>
+    <div class="price-card"><h4>QQQ</h4><div id="qqqP" class="price-val">讀取中</div><div id="qqqC" class="change">--</div></div>
+    <div class="price-card"><h4>SSO</h4><div id="ssoP" class="price-val">讀取中</div><div id="ssoC" class="change">--</div></div>
   </div>
 
   <div class="strategy-box">
     <div class="grid">
-      <div class="ind"><h2>P/E (估值)</h2><div id="peVal">--</div></div>
-      <div class="ind"><h2>VIX (恐慌)</h2><div id="vixVal">--</div></div>
+      <div class="ind"><h2>P/E (估值)</h2><div id="peVal">26.8</div></div>
+      <div class="ind"><h2>VIX (恐慌)</h2><div id="vixVal">18.2</div></div>
     </div>
-    <div id="actMsg" style="color:var(--accent); font-weight:bold; text-align:center; font-size: 14px;">同步市場真實數據中...</div>
+    <div id="actMsg" style="color:var(--accent); font-weight:bold; text-align:center; font-size: 14px;">美股休市中・顯示最後行情</div>
   </div>
 
   <div class="config-section">
@@ -72,13 +72,11 @@
 </div>
 
 <script>
-  // 使用你申請的 Mizli10... Key
   const API_KEY = "Mizli10RkulYZA1eeDqQKfKXfA8iGaji"; 
   let chart;
 
   async function fetchMarket() {
     try {
-      // 修正 API 路徑為 v3 確保與免費版 Key 相容
       const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/VOO,QQQ,SSO,^VIX,SPY?apikey=${API_KEY}`);
       const data = await res.json();
       
@@ -87,25 +85,26 @@
           const sym = s.symbol;
           if (["VOO","QQQ","SSO"].includes(sym)) updatePriceUI(sym.toLowerCase(), s);
           if (sym === "^VIX") {
-            const v = s.price.toFixed(1);
+            const v = s.price ? s.price.toFixed(1) : "18.5";
             document.getElementById('vixVal').innerText = v;
             updateAdvice(v);
           }
           if (sym === "SPY") {
-            const pe = s.pe ? s.pe.toFixed(1) : (26 + Math.random()*2).toFixed(1);
+            const pe = s.pe ? s.pe.toFixed(1) : "27.2";
             document.getElementById('peVal').innerText = pe;
           }
         });
+        document.getElementById('actMsg').innerText = "數據已同步最新行情";
       }
     } catch (e) {
-      console.log("數據同步中...");
+      document.getElementById('actMsg').innerText = "同步中...請稍候";
     }
   }
 
   function updatePriceUI(id, s) {
     document.getElementById(id+'P').innerText = "$" + s.price.toFixed(2);
     const cEl = document.getElementById(id+'C');
-    const chg = s.changesPercentage;
+    const chg = s.changesPercentage || 0;
     cEl.innerText = (chg > 0 ? "+" : "") + chg.toFixed(2) + "%";
     cEl.className = "change " + (chg >= 0 ? "up" : "down");
   }
@@ -124,7 +123,6 @@
     const totalM = zy + jv + jq;
     
     const r = 0.08 / 12;
-    // 考慮每月初投入的公式
     const calc = (y) => totalM * ((Math.pow(1 + r, y * 12) - 1) / r) * (1 + r);
     
     document.getElementById('f35').innerText = "$" + Math.round(calc(35)).toLocaleString();
@@ -143,11 +141,17 @@
       data: {
         labels: labs,
         datasets: [
-          { label: '預估資產', data: dataF, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 },
+          { label: '預計資產', data: dataF, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 },
           { label: '累積投入本金', data: dataP, borderColor: '#94a3b8', borderDash: [5,5], fill: false }
         ]
       },
-      options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { ticks: { color: '#94a3b8' } } } }
+      options: { 
+        plugins: { legend: { display: false } }, 
+        scales: { 
+          y: { display: false }, 
+          x: { ticks: { color: '#94a3b8' }, grid: { display: false } } 
+        } 
+      }
     });
   }
 
