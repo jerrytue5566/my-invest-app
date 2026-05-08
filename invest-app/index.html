@@ -3,55 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>家瑞 & 芷吟財富成長計畫 Pro</title>
+    <title>財富計畫 Pro - 即時報價版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { 
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc; 
-            --accent: #38bdf8; --success: #10b981; 
-            --zy: #f472b6; --jr: #38bdf8; --border: #334155;
-            --family: #a855f7;
+            --accent: #38bdf8; --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+            --zy: #f472b6; --jr: #38bdf8; --border: #334155; --family: #a855f7;
         }
         * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, sans-serif; }
         body { background:var(--bg); color:var(--text); padding:15px; }
         .container { max-width:500px; margin:auto; }
         
-        /* 頂部股價樣式 */
-        .price-grid { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-bottom:15px; }
-        .p-box { background:rgba(255,255,255,0.05); padding:12px; border-radius:18px; text-align:center; border: 1px solid var(--border); }
-        .p-label { font-size: 11px; color: #94a3b8; margin-bottom: 2px; }
-        .profit { color:var(--success); font-weight:bold; font-size: 16px; }
+        /* 價格看板優化 */
+        .price-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:15px; }
+        .p-box { background:rgba(255,255,255,0.05); padding:10px 5px; border-radius:15px; text-align:center; border: 1px solid var(--border); position: relative; }
+        .p-label { font-size: 10px; color: #94a3b8; margin-bottom: 2px; }
+        .profit { color:var(--success); font-weight:bold; font-size: 14px; }
+        .update-dot { position: absolute; top: 5px; right: 5px; width: 5px; height: 5px; background: var(--success); border-radius: 50%; opacity: 0.6; }
+
+        .signal-card { padding: 15px; border-radius: 20px; text-align: center; margin-bottom: 15px; font-weight: bold; border: 2px solid transparent; font-size: 14px; }
+        .signal-buy { background: rgba(16, 185, 129, 0.1); border-color: var(--success); color: var(--success); }
+        .signal-wait { background: rgba(245, 158, 11, 0.1); border-color: var(--warning); color: var(--warning); }
 
         .card { background:var(--card); border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid var(--border); }
-        
-        /* 切換按鈕 */
         .user-tab { display: flex; gap: 8px; margin-bottom: 15px; }
-        .tab-btn { flex: 1; padding: 12px; border-radius: 14px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; font-size: 13px; }
+        .tab-btn { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; font-size: 12px; }
         .tab-btn.active-jr { background: var(--jr); color: #0f172a; font-weight: bold; }
         .tab-btn.active-zy { background: var(--zy); color: #0f172a; font-weight: bold; }
         .tab-btn.active-all { background: var(--family); color: white; font-weight: bold; }
-
-        .stat-row { display: flex; justify-content: space-between; margin: 10px 0; font-size: 14px; align-items: center; }
-        .highlight { font-weight: bold; color: var(--accent); font-size: 16px; }
         
-        /* 輸入框樣式 */
-        .input-group { display: flex; gap: 10px; margin-top: 10px; }
-        .input-item { flex: 1; }
-        .input-item label { font-size: 11px; color: #94a3b8; display: block; margin-bottom: 4px; }
-        input { width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 8px; outline: none; }
-        
-        input[type="range"] { width: 100%; margin: 15px 0; accent-color: var(--accent); }
-        .chart-container { height: 250px; margin-top: 15px; }
+        input { width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 8px; margin-top: 5px; }
+        input[type="range"] { accent-color: var(--accent); margin: 15px 0; }
+        .chart-container { height: 200px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="price-grid">
-        <div class="p-box"><div class="p-label">VOO (美股)</div><div id="vooP" class="profit">--</div></div>
-        <div class="p-box"><div class="p-label">QQQ (美股)</div><div id="qqqP" class="profit">--</div></div>
-        <div class="p-box"><div class="p-label">USD/TWD</div><div id="exRate" class="profit">32.5</div></div>
+        <div class="p-box"><div class="update-dot"></div><div class="p-label">VOO</div><div id="voo-price" class="profit">--</div></div>
+        <div class="p-box"><div class="p-label">QQQ</div><div id="qqq-price" class="profit">--</div></div>
+        <div class="p-box"><div class="p-label">SSO</div><div id="sso-price" class="profit">--</div></div>
+        <div class="p-box"><div class="p-label">VIX</div><div id="vix-price" class="profit" style="color:var(--warning)">--</div></div>
     </div>
+
+    <div id="adviceBox" class="signal-card signal-wait">系統連線中...</div>
 
     <div class="user-tab">
         <button id="btnJR" class="tab-btn active-jr" onclick="switchUser('jr')">家瑞</button>
@@ -59,163 +56,41 @@
         <button id="btnALL" class="tab-btn" onclick="switchUser('all')">家庭總額</button>
     </div>
 
-    <div class="card" style="text-align:center; background: linear-gradient(145deg, #1e293b, #0f172a);">
-        <p id="displayTitle" style="font-size:14px;color:#94a3b8">💎 家瑞 預期資產</p>
-        <h1 id="totalValue" style="font-size:32px; margin:12px 0; color: #fff;">NT$ 0</h1>
-        <div class="stat-row" style="border-top: 1px solid #334155; padding-top: 10px;">
-            <span>每月存入</span>
-            <span id="monthlyInvest" style="color:var(--success); font-weight:bold;">NT$ 20,000</span>
-        </div>
+    <div class="card" style="text-align:center; padding: 15px;">
+        <p id="displayTitle" style="font-size:12px;color:#94a3b8">💎 家瑞 預計資產</p>
+        <h1 id="totalValue" style="font-size:28px; margin:8px 0;">NT$ 0</h1>
     </div>
 
     <div class="card" id="inputCard">
-        <p style="font-size:13px; color:var(--accent); margin-bottom:10px;">現有持股 (用於計算起點)</p>
-        <div class="input-group">
-            <div class="input-item">
-                <label>VOO 股數</label>
-                <input type="number" id="initVOO" value="10" oninput="update()">
-            </div>
-            <div class="input-item">
-                <label>QQQ 股數</label>
-                <input type="number" id="initQQQ" value="5" oninput="update()">
-            </div>
+        <p style="font-size:13px; color:var(--accent); margin-bottom:5px;">現有股數 (本金設定)</p>
+        <div style="display:flex; gap:10px;">
+            <div style="flex:1;"><label style="font-size:10px">VOO</label><input type="number" id="initVOO" value="32" oninput="update()"></div>
+            <div style="flex:1;"><label style="font-size:10px">QQQ</label><input type="number" id="initQQQ" value="12" oninput="update()"></div>
+            <div style="flex:1;"><label style="font-size:10px">SSO</label><input type="number" id="initSSO" value="0" oninput="update()"></div>
         </div>
     </div>
 
     <div class="card">
-        <div class="stat-row">
-            <span>投資年限：<span id="yearVal" class="highlight">10</span> 年</span>
-            <span>平均報酬：<span id="avgRate" class="highlight">9.5</span>%</span>
+        <div style="display:flex; justify-content:space-between; font-size:13px;">
+            <span>年限：<span id="yearVal" style="color:var(--accent)">10</span> 年</span>
+            <span>月入：<span id="monthlyInvest" style="color:var(--success)">20,000</span></span>
         </div>
         <input type="range" id="yearSlider" min="1" max="40" value="10" oninput="update()">
-        
-        <div class="chart-container">
-            <canvas id="vChart"></canvas>
-        </div>
+        <div class="chart-container"><canvas id="vChart"></canvas></div>
     </div>
 </div>
 
 <script>
     let currentUser = 'jr';
-    let currentPrices = { voo: 510.5, qqq: 445.2, twd: 32.5 };
     let myChart = null;
-
+    // 預設價格 (若 API 失敗時顯示最後收盤價)
+    let prices = { voo: 512.4, qqq: 446.8, sso: 82.5, vix: 14.8, twd: 32.5 };
+    
     const config = {
-        jr: { 
-            name: "家瑞", 
-            plans: [{t: 'VOO', m: 14000, r: 0.08}, {t: 'QQQ', m: 6000, r: 0.12}],
-            color: '#38bdf8'
-        },
-        zy: { 
-            name: "芷吟", 
-            plans: [{t: 'QQQ', m: 6000, r: 0.12}],
-            color: '#f472b6'
-        },
-        all: {
-            name: "家庭總額",
-            color: '#a855f7'
-        }
+        jr: { name:"家瑞", plans:[{t:'VOO',m:14000,r:0.08},{t:'QQQ',m:6000,r:0.12}], color:'#38bdf8' },
+        zy: { name:"芷吟", plans:[{t:'QQQ',m:6000,r:0.12}], color:'#f472b6' },
+        all: { name:"家庭總額", color:'#a855f7' }
     };
 
-    function switchUser(user) {
-        currentUser = user;
-        document.getElementById('btnJR').className = user === 'jr' ? 'tab-btn active-jr' : 'tab-btn';
-        document.getElementById('btnZY').className = user === 'zy' ? 'tab-btn active-zy' : 'tab-btn';
-        document.getElementById('btnALL').className = user === 'all' ? 'tab-btn active-all' : 'tab-btn';
-        document.getElementById('displayTitle').innerText = (user === 'all' ? '🏠 ' : '💎 ') + config[user].name + " 預期資產";
-        
-        // 家庭總額模式隱藏現有持股輸入（由個人累加）
-        document.getElementById('inputCard').style.display = user === 'all' ? 'none' : 'block';
-        update();
-    }
-
-    async function fetchData() {
-        const key = "Mizli10RkulYZA1eeDqQKfKXfA8iGaji";
-        try {
-            const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/VOO,QQQ?apikey=${key}`);
-            const data = await res.json();
-            data.forEach(s => {
-                document.getElementById(s.symbol.toLowerCase() + 'P').innerText = "$" + s.price.toFixed(1);
-                currentPrices[s.symbol.toLowerCase()] = s.price;
-            });
-        } catch (e) { console.log("使用內定股價"); }
-        update();
-    }
-
-    function calculateResults(user, years) {
-        let plans = [];
-        let initValue = 0;
-        
-        if(user === 'all') {
-            // 合併邏輯
-            plans = [...config.jr.plans, ...config.zy.plans];
-            // 假設家庭模式自動累加輸入框數值
-            initValue = (parseFloat(document.getElementById('initVOO').value)||0) * currentPrices.voo * currentPrices.twd +
-                        (parseFloat(document.getElementById('initQQQ').value)||0) * currentPrices.qqq * currentPrices.twd;
-        } else {
-            plans = config[user].plans;
-            const vQty = user === 'jr' ? parseFloat(document.getElementById('initVOO').value)||0 : 0;
-            const qQty = (user === 'jr' || user === 'zy') ? parseFloat(document.getElementById('initQQQ').value)||0 : 0;
-            initValue = (vQty * currentPrices.voo + qQty * currentPrices.qqq) * currentPrices.twd;
-        }
-
-        const monthlyTotal = plans.reduce((sum, p) => sum + p.m, 0);
-        let labels = [], dataPoints = [], costPoints = [];
-        
-        for (let i = 0; i <= years; i++) {
-            labels.push(i + 'y');
-            let futureValue = initValue * Math.pow(1 + 0.09, i); // 基礎資產增值
-            let investValue = 0;
-            
-            plans.forEach(p => {
-                const r = p.r / 12, n = i * 12;
-                if(n > 0) investValue += p.m * ((Math.pow(1 + r, n) - 1) / r);
-            });
-
-            dataPoints.push(Math.round(futureValue + investValue));
-            costPoints.push(Math.round(initValue + monthlyTotal * 12 * i));
-        }
-
-        return { labels, dataPoints, costPoints, monthlyTotal };
-    }
-
-    function update() {
-        const years = parseInt(document.getElementById('yearSlider').value);
-        document.getElementById('yearVal').innerText = years;
-        
-        const res = calculateResults(currentUser, years);
-        document.getElementById('totalValue').innerText = "NT$ " + res.dataPoints[res.dataPoints.length-1].toLocaleString();
-        document.getElementById('monthlyInvest').innerText = "NT$ " + res.monthlyTotal.toLocaleString();
-        
-        renderChart(res);
-    }
-
-    function renderChart(res) {
-        const ctx = document.getElementById('vChart').getContext('2d');
-        if (myChart) myChart.destroy();
-        myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: res.labels,
-                datasets: [{
-                    label: '預期市值', data: res.dataPoints, borderColor: config[currentUser].color,
-                    backgroundColor: 'rgba(56,189,248,0.1)', fill: true, tension: 0.4, pointRadius: 2
-                }, {
-                    label: '投入成本', data: res.costPoints, borderColor: '#475569', borderDash: [5,5], pointRadius: 0
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { ticks: { color: '#94a3b8', callback: v => (v/10000)+'萬' }, grid: { color: '#334155' } },
-                    x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
-                }
-            }
-        });
-    }
-
-    window.onload = fetchData;
-</script>
-</body>
-</html>
+    // 強力抓取價格函數
+    async function fetchAll
